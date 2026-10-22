@@ -1,7 +1,7 @@
 # Custom HTV & High-Vis Apparel Studio
 
-[![CI/CD Pipeline](https://github.com/[your-username]/[your-repo]/actions/workflows/cicd.yml/badge.svg)](https://github.com/[your-username]/[your-repo]/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI/CD Pipeline](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/workflows/cicd.yml/badge.svg)](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions)
+
 
 An end-to-end full-stack e-commerce application designed for personalizing, rendering, and ordering Arabic Heat Transfer Vinyl (HTV) stickers, high-vis safety tags, and custom apparel.
 
@@ -10,7 +10,7 @@ An end-to-end full-stack e-commerce application designed for personalizing, rend
 ## 📸 Demo & Public URL
 
 * **Live Application:** [https://your-app-domain.com](https://your-app-domain.com) *(or staging link)*
-* **Public Task Tracker:** [GitHub Projects Board / Issues](https://github.com/users/[your-username]/projects/[project-number])
+* **Public Task Tracker:** [View GitHub Issues](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues)
 
 ---
 
@@ -20,7 +20,7 @@ An end-to-end full-stack e-commerce application designed for personalizing, rend
 Custom apparel and sticker printing stores often struggle to handle non-Latin script personalizations (such as Arabic calligraphy and typography). Standard customizers frequently misrender right-to-left (RTL) text, fail to provide accurate live previews of complex Google Arabic fonts, and lack clear options for high-visibility material sizing and shape selection. On the merchant side, manually verifying custom Arabic text and high-vis safety requirements leads to high error rates, slow fulfillment times, and wasteful refunds.
 
 ### 💡 System Functionality
-[Your App Name] automates the custom order pipeline for Arabic HTV stickers, safety tags, and high-visibility apparel. The platform provides:
+The **Arabic Apparel & Stickers Studio** automates the custom order pipeline for Arabic HTV stickers, safety tags, and high-visibility apparel. The platform provides:
 1. **Interactive Real-Time Preview:** A dynamic canvas that correctly renders RTL Arabic text in real time across **3 Google Arabic Fonts** (*Amiri*, *Cairo*, *Tajawal*) and high-visibility HTV colors.
 2. **Product Catalog & Customization Engine:**
    * **HTV Arabic Stickers:** Interactive selection of 3 sizes (Small 10cm, Medium 15cm, Large 20cm), HTV material options, and color themes.
