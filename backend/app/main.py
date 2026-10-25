@@ -5,15 +5,17 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import engine
 from app.products import router as products_router
+from app.orders import router as orders_router
 
 app = FastAPI(title="Arabic Apparel and Stickers API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=[],
 )
 app.include_router(products_router)
+app.include_router(orders_router)
 
 
 @app.get("/health")

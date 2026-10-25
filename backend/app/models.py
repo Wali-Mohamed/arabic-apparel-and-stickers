@@ -1,6 +1,8 @@
 from typing import Any
 
-from sqlalchemy import ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -31,4 +33,19 @@ class ProductPrice(Base):
     option_key: Mapped[str] = mapped_column(String(50))
     option_value: Mapped[str] = mapped_column(String(100))
     price_pence: Mapped[int] = mapped_column(Integer)
+    pair_price_pence: Mapped[int | None] = mapped_column(Integer, nullable=True)
     product: Mapped[Product] = relationship(back_populates="prices")
+
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
+    customer_name: Mapped[str] = mapped_column(String(200))
+    customer_contact: Mapped[str] = mapped_column(String(320))
+    options: Mapped[dict[str, Any]] = mapped_column(JSON)
+    quantity: Mapped[int] = mapped_column(Integer)
+    total_price_pence: Mapped[int] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(30), default="new")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

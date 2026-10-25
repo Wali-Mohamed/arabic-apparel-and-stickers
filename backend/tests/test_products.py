@@ -10,52 +10,29 @@ from app.database import get_db
 from app.main import app
 from app.models import Base, Product, ProductPrice
 
+CATALOGUE = [
+    ("small-be-seen-tag", [("standard", "standard", 500, None)]),
+    ("big-be-seen-tag", [("standard", "standard", 1000, None)]),
+    ("personalized-arabic-rectangular-tag", [("standard", "standard", 1200, None)]),
+    ("small-arabic-letter-tag", [("standard", "standard", 500, 850)]),
+    ("personalized-arabic-htv-sticker", [("size", "5x5", 500, None), ("size", "9x4", 900, None), ("size", "12x3", 1200, None)]),
+    ("be-seen-boys-sweater", [("standard", "standard", 1500, 2500)]),
+    ("be-seen-mens-sweater", [("standard", "standard", 3000, 5000)]),
+    ("be-seen-black-canvas-bag", [("standard", "standard", 2000, None)]),
+]
+
 
 @pytest.fixture()
 def client() -> Generator[TestClient, None, None]:
-    engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     session_factory = sessionmaker(bind=engine)
     Base.metadata.create_all(engine)
-
     with session_factory() as session:
-        sticker = Product(
-            slug="personalized-arabic-htv-stickers",
-            name="Personalized Arabic HTV Stickers",
-            description="A test product.",
-            category="HTV Stickers",
-            configuration_options={"fonts": ["Amiri"]},
-        )
-        tag = Product(
-            slug="high-visibility-tags",
-            name="High-Visibility Tags",
-            description="A test tag.",
-            category="High-Visibility Tags",
-            configuration_options={"shapes": ["diamond", "rectangle"]},
-        )
-        sweater = Product(
-            slug="be-seen-sweater",
-            name="Be Seen Sweater",
-            description="A test sweater.",
-            category="Apparel",
-            configuration_options={"colour": "black"},
-        )
-        session.add_all([sticker, tag, sweater])
-        session.flush()
-        session.add_all(
-            [
-                ProductPrice(product_id=sticker.id, option_key="width_cm", option_value="10", price_pence=499),
-                ProductPrice(product_id=sticker.id, option_key="width_cm", option_value="15", price_pence=699),
-                ProductPrice(product_id=sticker.id, option_key="width_cm", option_value="20", price_pence=899),
-                ProductPrice(product_id=tag.id, option_key="shape", option_value="diamond", price_pence=599),
-                ProductPrice(product_id=tag.id, option_key="shape", option_value="rectangle", price_pence=699),
-                ProductPrice(product_id=tag.id, option_key="design", option_value="b-series", price_pence=599),
-                ProductPrice(product_id=sweater.id, option_key="standard", option_value="standard", price_pence=2499),
-            ]
-        )
+        for slug, prices in CATALOGUE:
+            product = Product(slug=slug, name=slug, description="Test product.", category="Test", configuration_options={})
+            session.add(product)
+            session.flush()
+            session.add_all(ProductPrice(product_id=product.id, option_key=key, option_value=value, price_pence=price, pair_price_pence=pair) for key, value, price, pair in prices)
         session.commit()
 
     def override_get_db() -> Generator[Session, None, None]:
@@ -69,54 +46,74 @@ def client() -> Generator[TestClient, None, None]:
     Base.metadata.drop_all(engine)
 
 
-def test_list_products(client: TestClient) -> None:
+def quote(client: TestClient, product_id: int, options: dict[str, str | int], quantity: int = 1) -> dict:
+    response = client.post(f"/api/products/{product_id}/price", json={"options": options, "quantity": quantity})
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def test_list_has_only_final_catalogue(client: TestClient) -> None:
     response = client.get("/api/products")
-
     assert response.status_code == 200
-    assert response.json()[0]["slug"] == "personalized-arabic-htv-stickers"
-    assert response.json()[0]["configuration_options"] == {"fonts": ["Amiri"]}
-    assert response.json()[0]["prices"][0]["price_pence"] == 499
+    assert [product["slug"] for product in response.json()] == [slug for slug, _ in CATALOGUE]
+    assert "high-visibility-tags" not in {product["slug"] for product in response.json()}
+    assert "personalized-arabic-htv-stickers" not in {product["slug"] for product in response.json()}
 
 
-def test_get_product(client: TestClient) -> None:
-    response = client.get("/api/products/1")
+@pytest.mark.parametrize(("product_id", "options", "expected"), [
+    (1, {"design": "be-seen"}, 500), (2, {}, 1000),
+    (3, {"text": "\u0645\u062d\u0645\u062f \u0627\u0644\u0639\u0644\u064a", "font": "Amiri"}, 1200),
+    (4, {"text": "\u0628\u0650", "font": "Cairo"}, 500),
+    (5, {"text": "\u0639\u0644\u064a", "font": "Tajawal", "size": "5x5", "colour": "#FFEA00"}, 500),
+    (5, {"text": "\u0639\u0644\u064a", "font": "Tajawal", "size": "9x4", "colour": "#F18A00"}, 900),
+    (5, {"text": "\u0639\u0644\u064a", "font": "Tajawal", "size": "12x3", "colour": "#000000"}, 1200),
+    (6, {"text": "\u0639\u0644\u064a", "font": "Amiri"}, 1500),
+    (7, {"text": "\u0639\u0644\u064a", "font": "Amiri"}, 3000), (8, {}, 2000),
+])
+def test_each_product_price(client: TestClient, product_id: int, options: dict[str, str | int], expected: int) -> None:
+    result = quote(client, product_id, options)
+    assert result["price_pence"] == expected
+    assert result["total_price_pence"] == expected
+    assert result["unit_price_pence"] == expected
 
-    assert response.status_code == 200
-    assert response.json()["name"] == "Personalized Arabic HTV Stickers"
+
+@pytest.mark.parametrize(("product_id", "options", "quantity", "expected"), [
+    (4, {"text": "\u0628", "font": "Amiri"}, 2, 850), (4, {"text": "\u0628", "font": "Amiri"}, 5, 2200),
+    (6, {"text": "\u0639\u0644\u064a", "font": "Cairo"}, 2, 2500), (6, {"text": "\u0639\u0644\u064a", "font": "Cairo"}, 3, 4000),
+    (7, {"text": "\u0639\u0644\u064a", "font": "Tajawal"}, 2, 5000), (7, {"text": "\u0639\u0644\u064a", "font": "Tajawal"}, 5, 13000), (2, {}, 3, 3000),
+])
+def test_bundle_prices_apply_to_each_complete_pair(client: TestClient, product_id: int, options: dict[str, str | int], quantity: int, expected: int) -> None:
+    result = quote(client, product_id, options, quantity)
+    assert result["quantity"] == quantity
+    assert result["price_pence"] == expected
 
 
-def test_get_missing_product_returns_not_found(client: TestClient) -> None:
-    response = client.get("/api/products/999")
-
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Product not found"}
-
-
-@pytest.mark.parametrize(
-    ("product_id", "options", "price_pence"),
-    [
-        (1, {"width_cm": 10}, 499),
-        (1, {"width_cm": 15}, 699),
-        (1, {"width_cm": 20}, 899),
-        (2, {"shape": "diamond"}, 599),
-        (2, {"shape": "rectangle"}, 699),
-        (2, {"design": "b-series"}, 599),
-        (3, {}, 2499),
-    ],
-)
-def test_calculate_demo_price(client: TestClient, product_id: int, options: dict[str, str | int], price_pence: int) -> None:
+@pytest.mark.parametrize(("product_id", "options"), [
+    (5, {"text": "\u0639\u0644\u064a", "font": "Amiri", "width_cm": 10, "colour": "#FFEA00"}),
+    (5, {"text": "\u0639\u0644\u064a", "font": "Amiri", "size": "10", "colour": "#FFEA00"}),
+    (4, {"text": "\u0628\u062a", "font": "Amiri"}), (1, {"design": "diamond"}), (8, {"text": "\u0639\u0644\u064a"}),
+])
+def test_invalid_or_discontinued_options_are_rejected(client: TestClient, product_id: int, options: dict[str, str | int]) -> None:
     response = client.post(f"/api/products/{product_id}/price", json={"options": options})
-
-    assert response.status_code == 200
-    assert response.json() == {
-        "price_pence": price_pence,
-        "currency": "GBP",
-        "demonstration_price": True,
-    }
+    assert response.status_code == 422
 
 
-def test_calculate_price_rejects_unsupported_option(client: TestClient) -> None:
-    response = client.post("/api/products/1/price", json={"options": {"width_cm": 99}})
+def test_rejects_invalid_quantity(client: TestClient) -> None:
+    response = client.post("/api/products/2/price", json={"options": {}, "quantity": 0})
+    assert response.status_code == 422
 
-    assert response.status_code == 400
-    assert response.json() == {"detail": "Unsupported product configuration"}
+
+def test_order_request_stores_server_calculated_total(client: TestClient) -> None:
+    response = client.post(
+        "/api/orders",
+        json={
+            "product_id": 4,
+            "options": {"text": "\u0628", "font": "Amiri"},
+            "quantity": 2,
+            "customer_name": "Test customer",
+            "customer_contact": "test@example.com",
+        },
+    )
+    assert response.status_code == 201
+    assert response.json()["total_price_pence"] == 850
+    assert response.json()["status"] == "new"

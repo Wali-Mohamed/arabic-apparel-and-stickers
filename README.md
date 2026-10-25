@@ -30,11 +30,25 @@ docker compose exec backend pytest
 docker compose exec frontend npm test
 ```
 
-The catalogue API is available at http://localhost:8000/api/products and http://localhost:8000/api/products/{id}. Products do not have prices yet; pricing remains intentionally out of scope.
+The catalogue API is available at http://localhost:8000/api/products and http://localhost:8000/api/products/{id}.
+
+### Current catalogue (October 2026)
+
+The current demonstration catalogue is seeded by Alembic migration `20261025_03_replace_catalogue_add_bundle_prices.py`. Prices are stored as integer pence: Small Be Seen tag £5; Big Be Seen tag £10; personalized Arabic rectangular tag £12; small Arabic letter-only tag £5 (two for £8.50); Arabic HTV stickers £5 (5 x 5 inches), £9 (9 x 4 inches), and £12 (12 x 3 inches); Be Seen boys' sweater £15 (two for £25); Be Seen men's sweater £30 (two for £50); and Be Seen black canvas bag £20.
+
+`POST /api/products/{id}/price` accepts `options` plus `quantity` (minimum 1). The backend calculates totals and applies a pair price to every complete pair; an odd leftover uses its standard single price. The diamond tag and the old 10 cm, 15 cm, and 20 cm sticker sizes are discontinued. The small Be Seen tag retains the fixed B-Series design, with no custom text.
+
+Personalized text is normalized to Unicode NFC and limited to 24 graphemes. It accepts Arabic letters, diacritics, spaces, hyphens, and Arabic or Western digits; the letter-only tag accepts exactly one Arabic letter with optional diacritics. The preview is illustrative and not production-accurate. Update the migration's `PRICES` list before commercial launch; no payments are implemented.
 
 ### Demonstration pricing
 
 Catalogue prices are demonstration-only GBP values stored in PostgreSQL as integer pence in the `product_prices` table. They are seeded by Alembic migration `20261025_02_add_product_prices.py` and are returned with each product. The option-aware pricing endpoint is `POST /api/products/{id}/price` with an `options` JSON object, for example `{"options":{"width_cm":15}}` for a 15 cm sticker. Update the seeded pence values in that migration before commercial launch. No payment processing is included.
+
+### Personalization rules
+
+The preview is illustrative only and is not production-accurate. Personalized stickers and sweaters require Arabic text and one of Amiri, Cairo, or Tajawal. High-vis tags support diamond and rectangle custom text designs, plus a fixed B-Series `ب س` design that cannot accept custom text. The API validates product options and calculates prices itself; clients never submit a price.
+
+Personalized text is normalized to Unicode NFC and limited to 24 graphemes. It must contain at least one Arabic letter and may otherwise use Arabic diacritics, spaces, hyphens, Arabic digits, or Western digits. Latin letters, emoji, punctuation, and other symbols are rejected. The frontend applies the same rules for immediate feedback, while FastAPI remains the authoritative validation layer.
 
 Stop the application with:
 
