@@ -1,5 +1,28 @@
 # Custom HTV & High-Vis Apparel Studio
 
+## Local development
+
+The initial application provides a React frontend, FastAPI backend, and PostgreSQL database. No commerce features are implemented yet.
+
+Copy the example environment file, then start the stack:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+In PowerShell, use `Copy-Item .env.example .env` for the first command.
+
+Open the frontend at http://localhost:5173. The API exposes http://localhost:8000/health for process health and http://localhost:8000/health/db to verify its SQLAlchemy connection to PostgreSQL.
+
+Stop the application with:
+
+```bash
+docker compose down
+```
+
+PostgreSQL data is stored in the persistent `postgres-data` Docker volume. To remove local database data too, run `docker compose down -v`.
+
 [![CI/CD Pipeline](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/workflows/cicd.yml/badge.svg)](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions)
 
 
