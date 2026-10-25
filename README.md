@@ -15,6 +15,27 @@ In PowerShell, use `Copy-Item .env.example .env` for the first command.
 
 Open the frontend at http://localhost:5173. The API exposes http://localhost:8000/health for process health and http://localhost:8000/health/db to verify its SQLAlchemy connection to PostgreSQL.
 
+### Catalogue database
+
+The backend applies Alembic migrations at container startup. The first migration creates the `products` table and idempotently seeds the three catalogue products. To run migrations manually:
+
+```bash
+docker compose exec backend alembic upgrade head
+```
+
+Run the backend and frontend test suites with:
+
+```bash
+docker compose exec backend pytest
+docker compose exec frontend npm test
+```
+
+The catalogue API is available at http://localhost:8000/api/products and http://localhost:8000/api/products/{id}. Products do not have prices yet; pricing remains intentionally out of scope.
+
+### Demonstration pricing
+
+Catalogue prices are demonstration-only GBP values stored in PostgreSQL as integer pence in the `product_prices` table. They are seeded by Alembic migration `20261025_02_add_product_prices.py` and are returned with each product. The option-aware pricing endpoint is `POST /api/products/{id}/price` with an `options` JSON object, for example `{"options":{"width_cm":15}}` for a 15 cm sticker. Update the seeded pence values in that migration before commercial launch. No payment processing is included.
+
 Stop the application with:
 
 ```bash
