@@ -2,10 +2,11 @@ from logging.config import fileConfig
 
 from alembic import context
 
-from app.database import DATABASE_URL
+from app.db_config import database_url
 from app.models import Base
 
 config = context.config
+DATABASE_URL = database_url(migration=True).render_as_string(hide_password=False)
 config.set_main_option("sqlalchemy.url", DATABASE_URL.replace("%", "%%"))
 
 if config.config_file_name is not None:
@@ -28,10 +29,18 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     from sqlalchemy import engine_from_config, pool
 
+    supplied_connection = config.attributes.get("connection")
+    if supplied_connection is not None:
+        context.configure(connection=supplied_connection, target_metadata=target_metadata)
+        with context.begin_transaction():
+            context.run_migrations()
+        return
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        hide_parameters=True,
     )
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

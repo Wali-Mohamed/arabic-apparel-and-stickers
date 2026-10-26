@@ -14,6 +14,8 @@ def production_app(monkeypatch):
 def test_production_host_origin_and_docs(monkeypatch):
     with TestClient(production_app(monkeypatch)) as client:
         assert client.get("/health").status_code == 200
+        assert client.get("/api/health").json() == {"status": "ok"}
+        assert client.get("/api/missing").status_code == 404
         assert client.get("/health", headers={"host": "evil.example.invalid"}).status_code == 400
         assert client.get("/docs").status_code == 404
         assert client.get("/openapi.json").status_code == 404

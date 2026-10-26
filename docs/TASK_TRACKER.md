@@ -305,6 +305,48 @@ required. Existing CAP-01 through CAP-04 records are preserved, not newly verifi
 - Next owner: reviewer validates published evidence; owner separately chooses
   hosting and authorizes any deployment hold removal. Keep Issues #4/#5 open.
 
+## Neon/Vercel preparation handoff - 2026-10-26
+
+- Task: CAP-06 follow-up; owner: Codex implementer. User reports Neon database
+  creation, but authorizes only configuration/code/documentation preparation.
+  Do not read actual credentials, connect to Neon, execute any migrations,
+  commit, push or deploy.
+- Scope/acceptance: preserve psycopg URLs and SSL query options; separate direct
+  migration and pooled serverless runtime connections; prepare guarded versioned
+  migrate/seed tooling; retain local Docker behavior; document Vercel requirements.
+- Files changed: `.gitignore`, `.env.neon.example`, `backend/app/db_config.py`,
+  `backend/app/database.py`, `backend/alembic.ini`, `backend/alembic/env.py`,
+  `backend/migrate_neon.py`, `backend/asgi.py`, `backend/.python-version`,
+  `backend/.vercelignore`, `backend/tests/test_neon_config.py`, `README.md`,
+  `spec.md`, `docs/ARCHITECTURE.md`, `docs/NEON_VERCEL.md`, this tracker.
+- Findings/implementation: existing psycopg 3 already supports SSL options.
+  Configuration accepts postgresql+psycopg and normalizes provider URL schemes,
+  requires SSL for recognized Neon hosts, rejects pooled migration URLs and
+  selects NullPool for Vercel/pooler connections. Existing local QueuePool and
+  component credentials remain. Alembic imports pure configuration, not runtime
+  engine state. The migration helper defaults to no connection; future apply
+  requires explicit target confirmation and uses a direct advisory-lock session.
+  Existing Alembic revisions already seed eight products/ten prices and were
+  not modified. ASGI entrypoint/Python version prepared for Vercel backend root.
+- Commands/results: read repository sources and official Neon/Vercel docs;
+  `git status --short`; searched URL/engine usage; ran
+  `docker run --rm --network none ... pytest tests --ignore=tests/integration -p no:cacheprovider`.
+  All 39 offline tests passed, including nine Neon/Vercel configuration/guard
+  cases, in-memory SQLite API tests and existing health/security tests. One
+  existing Starlette/AnyIO deprecation warning. No migration/integration command
+  or Docker stack startup was executed; no database sockets were available.
+- Evidence: [Neon/Vercel runbook](NEON_VERCEL.md). Tests verify URL parsing,
+  SSL and channel-binding forwarding, pool selection, direct/pooled separation,
+  no-engine migration plan/target guards and offline ASGI health import.
+- Risks/reviewer findings: actual Neon TLS/auth, runtime queries, connected
+  migration/apply/seed verification and lock behavior remain untested by request.
+  Vercel platform build/project topology, real domains/routing, secret scopes,
+  preview isolation, production approval and independent review remain pending.
+  Vercel Git integration can deploy independently of GitHub holds; configure its
+  auto-deploy/promotion controls before linking. No live URL/credentials invented.
+- Next owner: independent reviewer validates configuration and connected-path
+  design; owner separately authorizes future connectivity/migration/deployment.
+
 ## Handoff template
 
 Use this format for new or updated task records:
@@ -325,3 +367,76 @@ Next owner:
 Only record commands that were actually run and results that were actually
 observed. Planned work must remain `Planned` or `Blocked`; it must not be marked
 `Complete` merely because documentation or a proposed workflow exists.
+
+## Vercel Hobby same-origin preparation handoff - 2026-10-26
+
+- Task: CAP-06/CAP-09 follow-up; Codex implementer. Scope: one Vercel project
+  serving built React and FastAPI /api with Neon pooled runtime credentials;
+  preserve Docker configurations; no commit/push/deployment or Neon connection.
+- Owner reports Neon migration head 20261025_06 and seed verification passed.
+  This task did not independently connect or repeat migration/seed operations.
+- Files changed this task: vercel.json, .vercelignore, frontend/vercel.json,
+  frontend/src/App.tsx, backend/asgi.py, backend/app/main.py,
+  backend/tests/test_health.py, backend/tests/test_production_settings.py,
+  README.md, spec.md, docs/ARCHITECTURE.md, docs/NEON_VERCEL.md, this tracker.
+  Existing uncommitted Neon preparation files/changes were preserved.
+- Acceptance implemented: ordered service routing preserves API paths before SPA
+  fallback; /api health aliases retain legacy Docker paths; production frontend
+  defaults to same-origin; production Host/Origin guards remain explicit; no
+  secrets/configured domains invented; pooled DATABASE_URL remains runtime-only.
+- Verification observed: disposable Docker containers with --network none and
+  read-only source mounts ran 42 backend tests (all passed; one existing AnyIO
+  deprecation warning), six frontend tests (passed) and tsc/Vite production build
+  (passed). Compiled JS contained no localhost:8000 fallback. First frontend copy
+  command accidentally nested duplicate source tests; corrected copy and reran
+  the exact updated sources, reporting only the final six-test result here.
+  Both Vercel config files parse as JSON; 20 local Markdown links resolved;
+  git diff --check passed. Docker Compose/workflow files are unchanged. No
+  database containers, existing volumes, credentials or real environments touched.
+- Configuration reviewed against official Vercel Services/FastAPI documentation;
+  Services is beta on all plans. No Vercel CLI/platform build or hosted routing,
+  CDN fallback, trusted forwarded Host, Neon TLS/query or browser test was run.
+  JSON parsing is not platform schema/build validation. No fresh npm ci or
+  PostgreSQL integration run is claimed by this task.
+- Remaining gates: independent review, authorized publication, actual Vercel
+  project/domain/origin/host/environment configuration, preview DB isolation,
+  edge abuse/body controls, platform build and live synthetic-order smoke test.
+  Hobby is non-commercial only; use synthetic demo orders. Git integration can
+  bypass unchanged GitHub deployment holds; configure auto-deploy controls before
+  linking. No full CI/CD/deployment rubric completion claimed.
+- Next owner: independent reviewer and repository owner; follow exact settings
+  in docs/NEON_VERCEL.md only after separately authorizing publication/deployment.
+
+## Neon/Vercel publication handoff - 2026-10-26
+
+- Owner/role: Codex implementer. User explicitly authorized review, validation,
+  commit with feat: prepare Vercel and Neon deployment, normal origin/main push
+  and inspection of GitHub Actions. No Vercel deployment, Neon changes or secrets.
+- Scope: all 23 pending files from earlier Neon and same-origin preparation;
+  inventories appear in the preceding two handoffs. No unrelated files found.
+- Review: official current Vercel Services configuration reference supports
+  service root/framework/entrypoint/build settings and ordered service rewrites.
+  One repository-root project combines React/Vite and FastAPI asgi:app. Services
+  remains beta; platform build, live routing/headers/Host and Neon request smoke
+  tests remain unverified. Hobby remains personal/non-commercial only.
+- Safety: scanned all 23 pending files without echoing secret candidates; five
+  PostgreSQL URL literals are synthetic tests only. No real environment files,
+  private keys or unexpected credential patterns found. Environment example
+  credential values are blank; .env/.env.neon/.env.production/backend/.env and
+  .vercel/project.json are ignored. No credentials staged intentionally.
+  Docker/Compose files and CI/deployment workflow files have no diff against HEAD.
+  Remote main matched HEAD before publication. Repository hooks/deployments were
+  empty and existing check runs belonged only to GitHub Actions. No Vercel API or
+  settings were accessed; GitHub deployment holds remain unchanged.
+- Validation: disposable backend container with networking disabled passed all
+  42 offline tests (one existing AnyIO deprecation warning). Disposable frontend
+  clean npm ci reported zero vulnerabilities; six tests and production build
+  passed; emitted JS has no localhost API default. JSON parsing, all pending-doc
+  local links, environment ignore checks and git diff --check passed. No Neon
+  connection, migration or existing-volume modification performed.
+- Publication: stage only the reviewed 23 files, inspect staged names/whitespace,
+  commit/push normally; actual commit and Actions job conclusions will be reported
+  after publication, not predicted here. No Vercel deployment is authorized.
+- Remaining requirements: independent review, real Vercel project/environment
+  setup and beta build verification, preview isolation, edge abuse protection,
+  hosted synthetic-order smoke checks and approved rollback demonstration.

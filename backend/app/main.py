@@ -61,6 +61,8 @@ def create_app() -> FastAPI:
     application.include_router(orders_router)
     application.add_api_route("/health", health, methods=["GET"])
     application.add_api_route("/health/db", database_health, methods=["GET"])
+    application.add_api_route("/api/health", health, methods=["GET"])
+    application.add_api_route("/api/health/db", database_health, methods=["GET"])
     return application
 
 

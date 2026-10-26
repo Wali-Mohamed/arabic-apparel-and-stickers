@@ -56,6 +56,20 @@ CI; production CD uses a manual dispatch and requires environment protection
 configured by the owner. Both remain disabled pending a real hosting adapter.
 See [CI/CD and rollback](CI_CD.md) for permissions, setup and current blockers.
 
+## Neon/Vercel connection boundary
+
+Optional hosted preparation is documented in [Neon/Vercel](NEON_VERCEL.md).
+Pure db_config parsing preserves psycopg/SSL query settings, chooses NullPool
+for serverless/pooler runtime connections and keeps local QueuePool behavior.
+Alembic selects MIGRATION_DATABASE_URL independently from the pooled app URL;
+no migration runs on ASGI import or request startup. The operator helper defaults
+to a no-connect plan and requires explicit apply/target confirmation to migrate.
+Root vercel.json defines frontend Vite and backend FastAPI Vercel Services
+(currently beta). Ordered rewrites preserve /api paths and health endpoints;
+the frontend service handles SPA fallback. Production frontend builds default
+to same-origin requests; local development keeps its localhost API default.
+Real provider settings and hosted build/routing verification remain pending.
+
 ## Migration strategy
 
 Alembic revisions are linear and are run on backend startup. Revisions create the base catalogue, add prices and pair offers, create order requests, update the fixed Be Seen display, and seed HTV colours. The JSON/JSONB cast in revision `20261025_06` supports PostgreSQL's `jsonb_set` function while retaining the existing JSON column type.

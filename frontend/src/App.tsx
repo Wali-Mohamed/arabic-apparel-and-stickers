@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { MAX_PERSONALIZATION_GRAPHEMES, normalizeAndValidateArabicLetter, normalizeAndValidateArabicText } from './personalization'
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:8000')
 const fonts = ['Amiri', 'Cairo', 'Tajawal']
 const stickerColours = [
   ['Black', '#000000'], ['White', '#FFFFFF'], ['Yellow', '#FFEA00'], ['Light Blue', '#37C5D3'], ['Red', '#E52B24'],

@@ -85,6 +85,11 @@ Health endpoints:
 
 ## CI/CD
 
+[Neon and Vercel preparation](docs/NEON_VERCEL.md) documents the pooled runtime
+URL, separate direct migration URL, SSL settings and Vercel project setup. The
+migration helper defaults to connection-free validation; no Neon connection or
+migration has been performed by this preparation.
+
 The [frontend dependency security review](docs/DEPENDENCY_SECURITY.md) records
 remediation of the six npm audit findings: full and production-only audits now
 report zero for the rebuilt frontend. Vitest was upgraded explicitly to 4.1.12;
@@ -109,6 +114,12 @@ and the [implementation evidence](https://github.com/Wali-Mohamed/arabic-apparel
 for actual results and blockers.
 
 ## AI-assisted development
+
+Vercel Hobby preparation uses one repository-root project with Vite/FastAPI
+Services (beta), same-origin `/api` and `/api/health` endpoints. Follow the
+[exact import settings and release gates](docs/NEON_VERCEL.md). The owner reports
+Neon revision `20261025_06` and seed verification succeeded. No Vercel deployment
+has been performed; Hobby is suitable only for a personal, non-commercial demo.
 
 Remaining Zoomcamp grading work is tracked in the
 [public GitHub Issues tracker](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues).

@@ -56,3 +56,16 @@ this specification. See [CI/CD setup](docs/CI_CD.md) for outstanding prerequisit
    rejection paths and API restart persistence.
 5. Hosting/TLS setup, resource/cost estimates, rollback and outstanding public
    deployment evidence are documented without claiming a live deployment.
+
+## Neon/Vercel preparation boundary
+
+Runtime and migration credentials must remain distinct environment inputs;
+Neon URLs preserve SSL requirements and the psycopg driver. Preparation must not
+connect, migrate or seed until separately authorized. Local Docker/PostgreSQL
+remains supported. See [Neon/Vercel preparation](docs/NEON_VERCEL.md).
+
+The Vercel variant uses repository-root Services routing: Vite static frontend,
+same-origin FastAPI /api and /api/health endpoints, and pooled Neon runtime
+connections. SPA fallback must not capture unknown API paths. The owner reports
+revision 20261025_06 and catalogue verification passed; hosted verification and
+independent review remain pending. Hobby use is limited to a non-commercial demo.
