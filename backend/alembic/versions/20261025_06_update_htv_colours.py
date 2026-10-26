@@ -21,7 +21,7 @@ COLOURS = ["#000000", "#FFFFFF", "#FFEA00", "#37C5D3", "#E52B24", "#3AAF2A", "#E
 def upgrade() -> None:
     op.execute(
         sa.text("""
-            UPDATE products SET configuration_options = jsonb_set(configuration_options, '{colours}', CAST(:colours AS jsonb))
+            UPDATE products SET configuration_options = jsonb_set(configuration_options::jsonb, '{colours}', CAST(:colours AS jsonb))::json
             WHERE slug = 'personalized-arabic-htv-sticker'
         """).bindparams(colours=json.dumps(COLOURS))
     )
