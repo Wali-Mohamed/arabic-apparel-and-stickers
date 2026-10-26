@@ -11,10 +11,10 @@ tracks the remaining grading work. Issue creation does not complete implementati
 | CAP-03 | Protect HTV migration compatibility | Complete | PostgreSQL JSON/JSONB migration reaches head on an empty database | `backend/alembic/versions/20261025_06_update_htv_colours.py`; isolated local verification was performed on 2026-10-26 |
 | CAP-04 | Document AI-assisted development context | Complete | Agent instructions, role boundaries, collaboration protocol, and real-versus-proposed workflow are documented | `AGENTS.md`, `docs/AI_AGENT_WORKFLOW.md` |
 | CAP-05 | Public tracker and demonstrated agent use | In progress; independent review pending | Public tracker is linked; actual agent handoff and independent review demonstrate use | [Issue #1](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/1); [actual Codex review](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/1#issuecomment-6421542642) documents agent interaction; documentation publication authorized below; issue remains open |
-| CAP-06 | Public deployment evidence | Production configuration implemented; hosting/approval pending | Repeatable deployment, public URL/demo, persistence and rollback evidence | [#4](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4); [production runbook](PRODUCTION_DEPLOYMENT.md); no public deployment performed |
+| CAP-06 | Public deployment evidence | Public API/quote/synthetic-order checks passed; Documentation publication authorized; independent review pending | Repeatable deployment, public URL/demo, persistence and rollback evidence | [#4](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4); [public demo](https://arabic-apparel-and-stickers.vercel.app/); [verified evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4#issuecomment-6428990374); Issue #4 remains open |
 | CAP-07 | PostgreSQL integration tests and single test command | Partially implemented under CAP-09, P1 | Unit/frontend and real PostgreSQL integration tests pass through one command | [#2](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/2); real PostgreSQL integration added with CI; combined single-command runner and broader coverage still pending; existing SQLite/UI mock tests retained |
 | CAP-08 | Full-stack reproducibility evidence | Planned, P1 | Isolated Compose startup, migrations, browser flow and restart persistence are recorded | [#3](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/3); supplements CAP-02/03 evidence |
-| CAP-09 | CI/CD and rollback | In progress; CI implemented, deployment and independent review pending, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5) records actual publication/Actions results; [CI/CD setup and evidence](CI_CD.md); deployment jobs held, no hosted deployments |
+| CAP-09 | CI/CD and rollback | In progress; CI implemented, deployment and independent review pending, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5) records actual publication/Actions results; [CI/CD setup and evidence](CI_CD.md); GitHub deployment jobs held; public Vercel demo verified, approved dev/prod CD and rollback evidence pending |
 | CAP-10 | Correlated telemetry | Planned, P2 | Metrics, traces and structured logs share trace IDs and are viewable without customer data | [#6](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/6) |
 | CAP-11 | User-impact alert | Planned, P2 | Reversible isolated fault demonstrates firing and recovery | [#7](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7); depends on CAP-10 |
 | CAP-12 | Bounded on-call agent | Planned, P2 | Alert triggers agent diagnosis/remediation and demonstrated recovery | [#8](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8); depends on CAP-11 |
@@ -490,3 +490,90 @@ observed. Planned work must remain `Planned` or `Blocked`; it must not be marked
   runs for current main; Vercel CLI unavailable locally. Inspect the newly pushed
   commit's Actions/check/status/deployment metadata and report actual results.
   No direct Vercel deployment is initiated or real secrets configured by this task.
+
+## Public deployment evidence review - 2026-10-26
+
+- Scope/owner: Codex implementer reviewed Issue #4 acceptance criteria under owner
+  authorization to post verified public evidence and update this tracker only.
+  No application edits, commit, push, migration or deployment authorized/performed.
+- Public app: https://arabic-apparel-and-stickers.vercel.app/ (React/FastAPI on
+  Vercel; Neon provider and successful demo order/Small+Big visual order are
+  owner-confirmed). These owner reports are distinct from the agent checks below.
+- Observed checks: public GET /, /api/health, /api/health/db and /api/products all
+  returned HTTP 200; DB health reported connected; catalogue contained eight
+  products. Non-persisting Small-tag quote POST returned HTTP 200, quantity 1,
+  total 500 integer GBP pence and exact matching public-origin CORS response.
+  No order was created and no customer/order records or credentials accessed.
+- Release: commit 690f99ec35e964c80c2e78315678c1a964a52369; latest successful main
+  [CI run 40412574765](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40412574765)
+  passed backend, frontend, PostgreSQL integration, both Docker builds and
+  production browser smoke. Vercel GitHub status SUCCESS/Deployment has completed:
+  [deployment dashboard](https://vercel.com/aim-aster/arabic-apparel-and-stickers/8tiaxVBxJ18aEHyruo2FXBjennrC).
+  Dashboard access and direct production-alias-to-SHA mapping were not available.
+  GitHub development deployment was skipped; Issue #5 CD gates remain separate.
+- Evidence posted: [Issue #4 review comment](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4#issuecomment-6428990374).
+  Issue #4 remains OPEN: README has no public URL and still says no deployment;
+  independent hosted browser/order persistence and historical approval evidence
+  remain unrecorded, and the required independent reviewer has not approved.
+  Rollback procedure exists in NEON_VERCEL.md; hosted rollback/restore drill is
+  not claimed. Historical no-deployment handoffs describe their original dates.
+- Files changed: docs/TASK_TRACKER.md only. Commands: gh issue view/run list/run
+  view/commit-status; public HTTPS GETs and read-only pricing POST via PowerShell;
+  gh issue comment; git diff --check and local link validation. Web-reader access
+  failed; direct HTTPS requests supplied the actual observed public results.
+- Next owner: authorized documentation update/publication of README URL and stale
+  deployment claims; independent reviewer confirms hosted quoting/order persistence,
+  visual behavior and approval evidence. Keep synthetic data private; do not
+  expose real order/contact records. No full deployment/CI-CD completion claimed.
+
+## Public deployment documentation finalization - 2026-10-26
+
+- Owner/role: Codex implementer; authorized README/tracker updates, Issue #4
+  evidence and non-destructive hosted review, including one permitted unique
+  synthetic order. No commit, push, code/schema/price/migration or secret changes.
+- README now links https://arabic-apparel-and-stickers.vercel.app/ and documents
+  compiled React/Vite and FastAPI in one Vercel Services project, same-origin /api,
+  pooled SSL Neon connection, separate direct operator migrations, local Docker
+  distinction, no-payments/non-commercial scope and reviewer browser steps.
+  Removed current no-deployment assertions; historical handoffs remain history.
+- Hosted results: GET /, /api/health, /api/health/db returned 200; catalogue had
+  eight products. Valid Arabic rectangular-tag quote (Amiri, quantity 1) returned
+  1200 pence. Exactly one unique synthetic order with example.invalid contact
+  returned HTTP 201, ID 5, status new, quantity 1, total 1200 pence, created_at
+  2026-10-26T22:44:48.815057Z. Returned total matched quote; subsequent DB health
+  remained connected. No real customer details or unique contact marker published.
+- Persistence evidence boundary: source handler commits and refreshes before
+  returning 201, supporting a committed database write. No public order-read
+  route exists; no independent later SQL retrieval, restart/restore or direct
+  deployed-source-to-SHA inspection occurred. No automatic retry or deletion.
+- Latest reviewed release 690f99ec35e964c80c2e78315678c1a964a52369 and successful
+  [six-job CI](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40412574765)
+  were reconfirmed. Owner visual confirmations are not independent human review.
+- Public handoff: [Issue #4 finalization evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4#issuecomment-6429118340).
+- Rubric assessment: official Deployment 2-point criterion requires deployed and
+  publicly reachable application or a clear deployment demo. Observed live
+  frontend/API/catalogue/quote/order support that criterion; this is not an awarded
+  grade. Issue #4 remains open for authorized documentation publication, independent
+  review and recorded historical deployment approval. Later narrow synthetic-row
+  retrieval and hosted rollback drill would strengthen evidence; full Issue #5
+  CI/CD acceptance remains separate. No human peer review is claimed.
+- Files changed: README.md and docs/TASK_TRACKER.md only (tracker contained prior
+  uncommitted evidence, preserved). Commands: gh issue view/run list/comment;
+  sanitized hosted GET/quote/one order POST; local links and git diff --check.
+- Next owner: review and authorize documentation commit/push; independent reviewer
+  follows README walkthrough and, if authorized, confirms only the synthetic row
+  without exposing customer data. No application tests rerun for documentation.
+
+## Deployment evidence publication handoff - 2026-10-26
+
+- User authorizes review, commit and normal origin/main push of README.md and
+  this tracker only, followed by CI inspection and an Issue #4 commit-link update.
+- Reviewed scope: live URL, Vercel/FastAPI/Neon architecture, reviewer steps,
+  sanitized historical hosted checks and synthetic order 5 evidence. No secrets
+  or unrelated changes found. Restored two historical lines accidentally affected
+  by PowerShell text encoding during prior tracker updates.
+- Local Markdown links and git diff --check validated before publication. No
+  application/schema/pricing/order changes or new hosted writes performed.
+- Issue #4 remains open for independent review and recorded historical deployment
+  approval evidence; later SQL retrieval/rollback drill are not claimed. Actual
+  commit and Actions results will be reported in Issue #4 after publication.

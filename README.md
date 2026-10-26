@@ -2,6 +2,47 @@
 
 A React, FastAPI, and PostgreSQL capstone for Arabic-personalized apparel, tags, and HTV stickers. Prices are demonstration GBP prices; no payment processing is implemented.
 
+## Live demo
+
+Open [Arabic Apparel and Stickers](https://arabic-apparel-and-stickers.vercel.app/).
+This is a personal, non-commercial capstone demonstration: no payments, checkout
+or fulfillment. Use synthetic contact details only; submitting an order creates
+a persistent demo record.
+
+One Vercel project serves the compiled React/Vite frontend and FastAPI through
+same-origin `/api` routes using Vercel Services (beta). FastAPI uses SQLAlchemy
+and a private pooled `DATABASE_URL` to connect to Neon PostgreSQL with SSL.
+Credentials stay in server-side environment settings, never frontend variables.
+The owner reports Alembic revision `20261025_06` and catalogue seed verification
+passed. Hosted requests/builds do not run migrations; operator migrations use
+a separate direct connection. Docker Compose remains the local alternative.
+
+### Reviewer walkthrough
+
+1. Open the demo and confirm eight catalogue products load. Open Small and Big
+   Be Seen details: English `Be` should be left of Arabic `س`; neither is editable.
+2. Choose the personalized Arabic rectangular tag, enter `سلام`, choose Amiri,
+   and inspect the RTL illustrative preview. Latin-only text should be rejected.
+3. Check the server-calculated GBP quote: one rectangular tag is £12.00.
+   Optionally inspect a letter-only tag at quantity two for the £8.50 pair offer.
+   Prices are demonstrations, not a payment request.
+4. To test ordering, submit once with a unique synthetic name and an
+   `@example.invalid` contact. Confirm the returned order-request number. Do not
+   enter real contact details or retry blindly if the response is interrupted.
+   There is no payment step, customer account, or public order-history endpoint.
+5. Inspect [API health](https://arabic-apparel-and-stickers.vercel.app/api/health),
+   [database health](https://arabic-apparel-and-stickers.vercel.app/api/health/db)
+   and the [catalogue API](https://arabic-apparel-and-stickers.vercel.app/api/products).
+   Independent later retrieval of an order requires an authorized operator's
+   narrowly scoped database check; never publish customer rows or credentials.
+
+Deployment evidence: [Issue #4](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4)
+and the [task tracker](docs/TASK_TRACKER.md). Latest reviewed application commit:
+[`690f99e`](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/commit/690f99ec35e964c80c2e78315678c1a964a52369);
+[CI run](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40412574765)
+passed all six jobs. Vercel reported that commit deployed successfully; the
+production alias-to-SHA mapping has not been independently inspected.
+
 Small and Big Be Seen tags share a fixed design: English `Be` on the left and
 Arabic `س` on the right. Isolated script spans keep this order in cards, previews,
 order summaries and confirmations; customers cannot edit the design.
@@ -64,7 +105,9 @@ The UI can submit a demo order request after a valid quote. `POST /api/orders` s
 
 ## Database migrations
 
-The backend runs Alembic migrations at startup. To run them manually:
+The local development Compose backend runs Alembic migrations at startup.
+Vercel does not: hosted migrations are a separate operator action described in
+the [Neon/Vercel runbook](docs/NEON_VERCEL.md). For local Docker only:
 
 ```powershell
 docker compose exec backend alembic upgrade head
@@ -91,8 +134,8 @@ Health endpoints:
 
 [Neon and Vercel preparation](docs/NEON_VERCEL.md) documents the pooled runtime
 URL, separate direct migration URL, SSL settings and Vercel project setup. The
-migration helper defaults to connection-free validation; no Neon connection or
-migration has been performed by this preparation.
+migration helper defaults to connection-free validation. Neon is connected to
+the live application; historical preparation-only checks did not connect to it.
 
 The [frontend dependency security review](docs/DEPENDENCY_SECURITY.md) records
 remediation of the six npm audit findings: full and production-only audits now
@@ -112,7 +155,8 @@ journey; actual published run results are recorded in Issue #5.
 Separate development and production deployment workflows are prepared, but
 disabled by explicit publication holds until real hosting, credentials and
 production environment approval rules are configured and a reviewed code change
-removes the holds. No public deployment or completed rollback is claimed.
+removes the holds. The live Vercel Git integration operates separately from these
+held GitHub deployment jobs; a hosted rollback drill has not been demonstrated.
 See [Issue #5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5)
 and the [implementation evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5#issuecomment-6422151090)
 for actual results and blockers.
@@ -122,8 +166,8 @@ for actual results and blockers.
 Vercel Hobby preparation uses one repository-root project with Vite/FastAPI
 Services (beta), same-origin `/api` and `/api/health` endpoints. Follow the
 [exact import settings and release gates](docs/NEON_VERCEL.md). The owner reports
-Neon revision `20261025_06` and seed verification succeeded. No Vercel deployment
-has been performed; Hobby is suitable only for a personal, non-commercial demo.
+Neon revision `20261025_06` and seed verification succeeded. The public demo is
+live; Hobby is suitable only for a personal, non-commercial demo.
 
 Remaining Zoomcamp grading work is tracked in the
 [public GitHub Issues tracker](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues).
