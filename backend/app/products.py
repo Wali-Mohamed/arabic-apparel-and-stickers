@@ -6,6 +6,7 @@ from app.database import get_db
 from app.models import Product, ProductPrice
 from app.personalization import normalize_and_validate_arabic_letter, normalize_and_validate_arabic_text
 from app.schemas import PriceQuoteRead, PriceQuoteRequest, ProductRead
+from app.telemetry import operation
 
 router = APIRouter(prefix="/api/products", tags=["products"])
 
@@ -26,11 +27,13 @@ TEXT_PRODUCTS = {
 
 
 @router.get("", response_model=list[ProductRead])
+@operation("catalogue.lookup")
 def list_products(db: Session = Depends(get_db)) -> list[Product]:
     return list(db.scalars(select(Product).options(selectinload(Product.prices)).order_by(Product.id)))
 
 
 @router.get("/{product_id}", response_model=ProductRead)
+@operation("product.lookup")
 def get_product(product_id: int, db: Session = Depends(get_db)) -> Product:
     product = db.scalar(select(Product).options(selectinload(Product.prices)).where(Product.id == product_id))
     if product is None:
@@ -39,19 +42,14 @@ def get_product(product_id: int, db: Session = Depends(get_db)) -> Product:
 
 
 @router.post("/{product_id}/price", response_model=PriceQuoteRead)
+@operation("pricing.request")
 def calculate_price(product_id: int, quote_request: PriceQuoteRequest, db: Session = Depends(get_db)) -> PriceQuoteRead:
-    product = db.get(Product, product_id)
+    product = lookup_product(db, product_id)
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
 
     option_key, option_value, normalized_text = _price_option_for(product, quote_request.options)
-    price = db.scalar(
-        select(ProductPrice).where(
-            ProductPrice.product_id == product.id,
-            ProductPrice.option_key == option_key,
-            ProductPrice.option_value == option_value,
-        )
-    )
+    price = lookup_price(db, product.id, option_key, option_value)
     if price is None:
         raise HTTPException(status_code=400, detail="Unsupported product configuration")
 
@@ -66,6 +64,23 @@ def calculate_price(product_id: int, quote_request: PriceQuoteRequest, db: Sessi
     )
 
 
+@operation("product.lookup")
+def lookup_product(db: Session, product_id: int) -> Product | None:
+    return db.get(Product, product_id)
+
+
+@operation("price.lookup")
+def lookup_price(db: Session, product_id: int, option_key: str, option_value: str) -> ProductPrice | None:
+    return db.scalar(
+        select(ProductPrice).where(
+            ProductPrice.product_id == product_id,
+            ProductPrice.option_key == option_key,
+            ProductPrice.option_value == option_value,
+        )
+    )
+
+
+@operation("pricing.validate")
 def _price_option_for(product: Product, options: dict[str, str | int]) -> tuple[str, str, str | None]:
     if product.slug == "personalized-arabic-htv-sticker":
         _require_allowed_options(options, {"text", "font", "size", "colour"})
@@ -108,6 +123,7 @@ def _validate_font(font: object) -> None:
         raise HTTPException(status_code=422, detail="font must be Amiri, Cairo, or Tajawal")
 
 
+@operation("pricing.calculate")
 def calculate_total(price: ProductPrice, quantity: int) -> int:
     pair_count, leftover = divmod(quantity, 2)
     return (

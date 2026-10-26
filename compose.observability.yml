@@ -1,0 +1,62 @@
+# Standalone local demonstration: never merge with a developer/production stack.
+services:
+  lgtm:
+    image: grafana/otel-lgtm:0.38.1
+    ports: ['127.0.0.1:${LOCAL_GRAFANA_PORT:-3000}:3000']
+    volumes:
+      - ./observability/datasources.yaml:/otel-lgtm/grafana/conf/provisioning/datasources/apparel.yaml:ro
+      - ./observability/dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/apparel.yaml:ro
+      - ./observability/dashboard.json:/otel-lgtm/grafana/conf/provisioning/dashboards/custom/apparel.json:ro
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: apparel_observability
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: ephemeral_local_only
+    tmpfs: [/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U demo -d apparel_observability]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  backend:
+    build: ./backend
+    image: apparel-observability-backend:local
+    environment:
+      DATABASE_URL: postgresql+psycopg://demo:ephemeral_local_only@postgres/apparel_observability
+      LOCAL_OBSERVABILITY: '1'
+      LOCAL_OTLP_ENDPOINT: http://lgtm:4318
+      APP_ENV: production
+      PUBLIC_ORIGIN: http://localhost:${LOCAL_FRONTEND_PORT:-18080}
+      ALLOWED_HOSTS: localhost,127.0.0.1,backend
+    command: [sh, -c, 'alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-access-log']
+    depends_on:
+      postgres: {condition: service_healthy}
+      lgtm: {condition: service_started}
+    healthcheck:
+      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://localhost:8000/health")']
+      interval: 3s
+      timeout: 3s
+      retries: 40
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.production
+    ports: ['127.0.0.1:${LOCAL_FRONTEND_PORT:-18080}:8080']
+    depends_on:
+      backend: {condition: service_healthy}
+  demo:
+    image: apparel-observability-backend:local
+    profiles: [demo]
+    working_dir: /demo
+    volumes: ['./scripts/observability-demo.py:/demo/demo.py:ro']
+    command: [python, demo.py]
+    depends_on:
+      backend: {condition: service_healthy}
+  browser:
+    profiles: [demo]
+    build: ./tests/production
+    image: apparel-observability-browser:local
+    volumes: ['./scripts/observability-ui.cjs:/tests/observability-ui.cjs:ro']
+    entrypoint: [node, /tests/observability-ui.cjs]
+    depends_on: [frontend, lgtm]

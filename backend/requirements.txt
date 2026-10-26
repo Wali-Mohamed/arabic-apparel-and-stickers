@@ -6,3 +6,5 @@ alembic==1.14.1
 pytest==8.3.4
 httpx==0.28.1
 regex==2024.11.6
+opentelemetry-sdk==1.45.1
+opentelemetry-exporter-otlp-proto-http==1.45.1

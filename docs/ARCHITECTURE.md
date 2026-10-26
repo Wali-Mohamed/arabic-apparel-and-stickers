@@ -75,6 +75,14 @@ the frontend service handles SPA fallback. Production frontend builds default
 to same-origin requests; local development keeps its localhost API default.
 Real provider settings and hosted build/routing verification remain pending.
 
+## Local observability
+
+Optional local telemetry uses manual request/business spans, JSON completion
+logs and request/error/duration metrics. The standalone compose.observability.yml
+sends OTLP to pinned LGTM storage/UI and uses its own tmpfs PostgreSQL. Existing
+Compose/Vercel settings are untouched; instrumentation is disabled by default.
+See [local observability](OBSERVABILITY.md) for privacy boundaries and evidence.
+
 ## Migration strategy
 
 Alembic revisions are linear and are run on backend startup. Revisions create the base catalogue, add prices and pair offers, create order requests, update the fixed Be Seen display, and seed HTV colours. The JSON/JSONB cast in revision `20261025_06` supports PostgreSQL's `jsonb_set` function while retaining the existing JSON column type.

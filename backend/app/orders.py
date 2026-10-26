@@ -1,29 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Order, Product, ProductPrice
-from app.products import _price_option_for, calculate_total
+from app.models import Order
+from app.products import _price_option_for, calculate_total, lookup_product, lookup_price
 from app.schemas import OrderCreate, OrderRead
+from app.telemetry import operation
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
 
 @router.post("", response_model=OrderRead, status_code=201)
+@operation("order.create")
 def create_order(order_request: OrderCreate, db: Session = Depends(get_db)) -> Order:
-    product = db.get(Product, order_request.product_id)
+    product = lookup_product(db, order_request.product_id)
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
 
     option_key, option_value, normalized_text = _price_option_for(product, order_request.options)
-    price = db.scalar(
-        select(ProductPrice).where(
-            ProductPrice.product_id == product.id,
-            ProductPrice.option_key == option_key,
-            ProductPrice.option_value == option_value,
-        )
-    )
+    price = lookup_price(db, product.id, option_key, option_value)
     if price is None:
         raise HTTPException(status_code=400, detail="Unsupported product configuration")
 

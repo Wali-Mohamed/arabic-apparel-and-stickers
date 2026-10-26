@@ -1,0 +1,10 @@
+{
+  "uid": "apparel-local", "title": "Apparel local journey", "schemaVersion": 39,
+  "version": 1, "refresh": "5s", "time": {"from": "now-15m", "to": "now"},
+  "panels": [
+    {"id": 1, "title": "Requests by route and status", "type": "timeseries", "gridPos": {"x":0,"y":0,"w":12,"h":8}, "datasource":{"type":"prometheus","uid":"apparel-prometheus"}, "targets":[{"expr":"sum by (route, status) (apparel_requests_total)","refId":"A"}]},
+    {"id": 2, "title": "Errors (4xx and 5xx)", "type": "timeseries", "gridPos": {"x":12,"y":0,"w":12,"h":8}, "datasource":{"type":"prometheus","uid":"apparel-prometheus"}, "targets":[{"expr":"sum by (route, status) (apparel_errors_total)","refId":"A"}]},
+    {"id": 3, "title": "Request p95 seconds", "type": "timeseries", "gridPos": {"x":0,"y":8,"w":12,"h":8}, "datasource":{"type":"prometheus","uid":"apparel-prometheus"}, "targets":[{"expr":"histogram_quantile(0.95, sum by (le, route) (rate(apparel_request_duration_seconds_bucket[5m])))","exemplar":true,"refId":"A"}]},
+    {"id": 4, "title": "Sanitized completion logs (expand TraceID link)", "type": "logs", "gridPos": {"x":12,"y":8,"w":12,"h":8}, "datasource":{"type":"loki","uid":"apparel-loki"}, "targets":[{"expr":"{service_name=\"arabic-apparel-api\"} | json","refId":"A"}]}
+  ]
+}

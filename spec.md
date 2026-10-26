@@ -38,6 +38,12 @@ Payments, customer accounts, checkout, fulfillment, and production-accurate rend
 
 ## Delivery validation
 
+Optional local observability must correlate sanitized request logs and spans,
+collect request/error/duration metrics and expose them in a monitoring UI.
+Never record personalization/contact data, bodies, credentials or SQL parameters;
+exporter failure must not interrupt ordering. Local evidence and unverified
+metric-exemplar or production-monitoring claims must remain explicitly distinct.
+
 CI must run backend tests, isolated PostgreSQL integration after Alembic
 migrations, frontend tests/build using the committed npm lockfile, and Docker
 image builds on pull requests and pushes to main. Deployment preparation must

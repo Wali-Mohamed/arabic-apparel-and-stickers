@@ -15,7 +15,7 @@ tracks the remaining grading work. Issue creation does not complete implementati
 | CAP-07 | PostgreSQL integration tests and single test command | Partially implemented under CAP-09, P1 | Unit/frontend and real PostgreSQL integration tests pass through one command | [#2](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/2); real PostgreSQL integration added with CI; combined single-command runner and broader coverage still pending; existing SQLite/UI mock tests retained |
 | CAP-08 | Full-stack reproducibility evidence | Planned, P1 | Isolated Compose startup, migrations, browser flow and restart persistence are recorded | [#3](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/3); supplements CAP-02/03 evidence |
 | CAP-09 | CI/CD and rollback | In progress; CI implemented, deployment and independent review pending, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5) records actual publication/Actions results; [CI/CD setup and evidence](CI_CD.md); GitHub deployment jobs held; public Vercel demo verified, approved dev/prod CD and rollback evidence pending |
-| CAP-10 | Correlated telemetry | Planned, P2 | Metrics, traces and structured logs share trace IDs and are viewable without customer data | [#6](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/6) |
+| CAP-10 | Correlated telemetry | Local pipeline, screenshots and owner log/trace navigation verified; independent review pending, P2 | Metrics, traces and structured logs share trace IDs and are viewable without customer data | [#6](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/6) |
 | CAP-11 | User-impact alert | Planned, P2 | Reversible isolated fault demonstrates firing and recovery | [#7](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7); depends on CAP-10 |
 | CAP-12 | Bounded on-call agent | Planned, P2 | Alert triggers agent diagnosis/remediation and demonstrated recovery | [#8](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8); depends on CAP-11 |
 | CAP-13 | Grading evidence and independent review | Planned, P1 | All current criteria mapped to verified evidence; remaining gaps and submission obligations recorded | [#9](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/9) |
@@ -577,3 +577,96 @@ observed. Planned work must remain `Planned` or `Blocked`; it must not be marked
 - Issue #4 remains open for independent review and recorded historical deployment
   approval evidence; later SQL retrieval/rollback drill are not claimed. Actual
   commit and Actions results will be reported in Issue #4 after publication.
+
+## Phase 1 local observability handoff - 2026-10-26
+
+- Owner/role: Codex implementer under explicit local-only authorization for
+  Issue #6. No commit/push/deployment, Vercel/Grafana Cloud secrets or Neon access.
+- Scope/acceptance: catalogue, personalized pricing and demo-order request spans,
+  request/status/error/duration metrics, JSON logs with trace/span IDs, optional
+  pinned local LGTM storage/UI, privacy and outage isolation, repeatable tests.
+- Implementation: OpenTelemetry SDK/HTTP exporter 1.45.1; manual SERVER request
+  spans and fixed child operation names. Strict field allowlist, no auto HTTP/SQL
+  instrumentation, exception messages/events, bodies, names/contacts, Arabic text,
+  raw URLs/query strings, headers/cookies/tokens, SQL statements/parameters or
+  order IDs. Trace IDs use exemplars, not metric labels. Optional init plus bounded
+  background export/timeouts preserve APIs when the collector is unavailable.
+- Local stack: standalone compose.observability.yml, grafana/otel-lgtm:0.38.1,
+  loopback UI 3000/frontend 18080, private OTLP/storage ports, isolated tmpfs
+  PostgreSQL seeded only with existing revisions. Existing Compose/CI/Vercel
+  config and migrations unchanged. No existing volumes or orders touched.
+- Files: backend/app/{telemetry,main,products,orders}.py,
+  backend/requirements.txt, backend/tests/test_telemetry.py,
+  compose.observability.yml, observability/{dashboard.json,dashboards.yaml,datasources.yaml},
+  scripts/{observability-demo.py,observability-ui.cjs}, README.md, spec.md,
+  docs/ARCHITECTURE.md, docs/OBSERVABILITY.md and this tracker.
+- Observed tests: 46 passed in isolated migrated PostgreSQL + backend suite;
+  final offline suite 45 passed after SERVER-span refinement; eight frontend
+  tests and production build passed. Backend/static/browser images built.
+  Tests cover same trace/span IDs, distinct request traces, 200/201/422/500
+  metrics, sensitive sentinels, SDK exemplars and committed order under exporter
+  failure. Existing AnyIO deprecation warning only. Initial 500 fixture used a
+  Starlette route without FastAPI route metadata; corrected and reran successfully.
+- Actual storage: demo script verified catalogue/Arabic quote/synthetic order/422,
+  fresh per-run stored metrics/logs/trace correlation via Grafana datasource
+  proxies. Final run found four fresh stored exemplars; one resolved to a retained
+  trace. Fresh order trace cc892754c194718c4fc7aefb4c4a9a4c. Earlier replay used
+  older log entries; narrowed query to the current run and reran to avoid stale
+  evidence. Chromium rendered all four provisioned dashboard panels.
+- Outage: stopped LGTM, submitted one synthetic order in disposable DB, got 201,
+  and a separate database session confirmed persistence; collector restarted.
+  Harness quoting/hard-coded obsolete ID attempts failed before any order write;
+  corrected with stdin Python and actual catalogue slug resolution.
+- Commands: docker build; offline docker run pytest/npm test/npm run build;
+  isolated compose.ci.yml run --build --rm backend; observability up/demo/browser;
+  collector stop/start + local order/DB check; Compose/JSON/link/whitespace checks.
+  Disposable CI and observability review projects cleaned using plain down,
+  never down -v. No hosted API request or customer record read in this task.
+- Public handoff: [Issue #6 implementation evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/6#issuecomment-6429573243).
+- Remaining: no screenshot artifact, manual exemplar click-through or Explore
+  trace UI navigation; no independent reviewer, published code or new Actions run.
+  Stored exemplars and automatic dashboard-panel rendering ARE observed, not just
+  configured. Real-LGTM demo/UI check is not wired into CI; existing backend CI
+  discovers unit telemetry tests only after later authorized publication.
+  Vercel lifecycle/flush and hosted monitoring are Phase 2, not claimed here.
+- Next owner: independently reproduce docs/OBSERVABILITY.md, capture sanitized
+  screenshot/navigation evidence, review privacy/outage behavior, then owner
+  separately authorizes publication. Keep Issue #6 open; no awarded grade claimed.
+
+## Observability publication handoff - 2026-10-26
+
+- User explicitly authorizes review, validation, commit with feat: add correlated
+  OpenTelemetry observability and normal origin/main push, then Actions inspection
+  and Issue #6 evidence update. Monitoring remains LOCAL ONLY; no Cloud/Vercel
+  monitoring variables, database migrations, existing orders or Neon changes.
+- Reviewed all Phase 1 instrumentation, privacy fields, failure handling,
+  provisioning, Compose, scripts/tests and documentation. Existing API prices,
+  validation and transaction semantics preserved. Nineteen task files include
+  the two owner-supplied screenshots in the existing observability directory.
+- Screenshots visually inspected: observability/observability-dashboard.png
+  shows four populated panels; observability/observability-log-trace-correlation.png
+  shows matching trace 5316df8ecc0cd03160fcf54cab35451e and a four-span 422 pricing
+  trace. No credentials/customer/contact/personalization data visible. Relative
+  image links added to OBSERVABILITY.md; owner manual verification is not an
+  independent reviewer sign-off. Manual metric-exemplar navigation not claimed.
+- Publication validation: 46 backend tests passed including real migrated tmpfs
+  PostgreSQL integration and telemetry correlation/privacy/failure/SDK exemplar
+  cases. Clean npm ci reported zero vulnerabilities; eight frontend tests and
+  TypeScript/Vite build passed. Actual fresh storage demonstration returned four
+  exemplars, one resolved to Tempo; matching order trace
+  d56a403a9c33bed3624cfb470db034b0. Existing AnyIO warning remains.
+- Initial verification stack start failed because the owner's port 3000 was
+  occupied; left existing services untouched. Added configurable loopback ports
+  LOCAL_GRAFANA_PORT/LOCAL_FRONTEND_PORT (defaults unchanged), tested on 3001/18081.
+  Initial browser rerun failed during startup; added explicit Grafana HTTP health
+  readiness polling without removing panel assertions, then reran. Record final
+  browser result in the publication response/Issue #6 rather than hiding failure.
+- Existing plain Compose, production Compose, migrations, GitHub workflows,
+  frontend application code and Vercel config have no diff. Secret-pattern and
+  screenshot review found no real secrets; ephemeral demo DB credentials are
+  explicitly local-only. Local links, JSON and git diff --check passed.
+- This commit publishes the implementation/evidence; actual commit SHA and
+  Actions conclusions will be added to Issue #6 after push. Required independent
+  review remains outstanding; keep Issue #6 open. Local correlated monitoring
+  supports the rubric's 2-point criterion, not an awarded grade or production
+  monitoring claim. Real-LGTM/UI scripts are not yet automated in hosted CI.

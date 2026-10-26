@@ -11,6 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.database import engine
 from app.products import router as products_router
 from app.orders import router as orders_router
+from app.telemetry import configured_telemetry, TelemetryMiddleware
 
 async def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -63,6 +64,10 @@ def create_app() -> FastAPI:
     application.add_api_route("/health/db", database_health, methods=["GET"])
     application.add_api_route("/api/health", health, methods=["GET"])
     application.add_api_route("/api/health/db", database_health, methods=["GET"])
+    telemetry = configured_telemetry()
+    if telemetry is not None:
+        application.add_middleware(TelemetryMiddleware, telemetry=telemetry)
+        application.add_event_handler("shutdown", telemetry.shutdown)
     return application
 
 

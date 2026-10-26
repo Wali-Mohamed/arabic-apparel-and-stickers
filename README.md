@@ -132,6 +132,13 @@ Health endpoints:
 
 ## CI/CD
 
+Optional [local observability](docs/OBSERVABILITY.md) instruments catalogue,
+pricing and demo orders with sanitized OpenTelemetry signals and a separate
+Grafana LGTM stack. This does not enable Vercel production monitoring; see the
+tracker for actual ingestion, exemplar and UI verification results. The
+[dashboard and log-to-trace screenshots](docs/OBSERVABILITY.md#owner-provided-ui-evidence)
+record owner-verified local UI evidence, not independent review.
+
 [Neon and Vercel preparation](docs/NEON_VERCEL.md) documents the pooled runtime
 URL, separate direct migration URL, SSL settings and Vercel project setup. The
 migration helper defaults to connection-free validation. Neon is connected to
