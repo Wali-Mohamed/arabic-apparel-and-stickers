@@ -32,6 +32,16 @@
 
 `VITE_API_BASE_URL` must point to the browser-reachable FastAPI address. Docker service-to-service database traffic uses the `postgres` hostname on the Compose network.
 
+## CI/CD validation and deployment boundary
+
+GitHub Actions CI runs backend, frontend, build and PostgreSQL integration jobs
+on pull requests and main pushes. Integration uses an ephemeral PostgreSQL
+service upgraded by Alembic, separate from developer/hosted data. `compose.ci.yml`
+provides a disposable local equivalent. Development CD follows successful main
+CI; production CD uses a manual dispatch and requires environment protection
+configured by the owner. Both remain disabled pending a real hosting adapter.
+See [CI/CD and rollback](CI_CD.md) for permissions, setup and current blockers.
+
 ## Migration strategy
 
 Alembic revisions are linear and are run on backend startup. Revisions create the base catalogue, add prices and pair offers, create order requests, update the fixed Be Seen display, and seed HTV colours. The JSON/JSONB cast in revision `20261025_06` supports PostgreSQL's `jsonb_set` function while retaining the existing JSON column type.

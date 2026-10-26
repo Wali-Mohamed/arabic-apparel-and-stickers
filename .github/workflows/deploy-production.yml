@@ -1,0 +1,35 @@
+name: Deploy production
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Full main-branch SHA with successful push CI (also used for rollback)
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    # Publication hold: requires a reviewed code change after hosting and
+    # required-reviewer protection are configured and deployment is authorized.
+    if: false && github.ref == 'refs/heads/main' && vars.PRODUCTION_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Configure required reviewers on this environment before enabling deployment.
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Deploy approved tested revision through configured hosting adapter
+        run: bash scripts/deploy.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          DEPLOY_ENVIRONMENT: production
+          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+          DEPLOY_WEBHOOK_TOKEN: ${{ secrets.DEPLOY_WEBHOOK_TOKEN }}

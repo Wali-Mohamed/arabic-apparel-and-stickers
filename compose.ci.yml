@@ -1,0 +1,27 @@
+# Disposable local CI stack: no host ports and no persistent database volume.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: apparel_ci
+      POSTGRES_USER: ci
+      POSTGRES_PASSWORD: ci_ephemeral_only
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U ci -d apparel_ci]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://ci:ci_ephemeral_only@postgres:5432/apparel_ci
+      RUN_POSTGRES_INTEGRATION: '1'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: [sh, -c, 'alembic upgrade head && alembic current && pytest -v']
+  frontend:
+    build: ./frontend
+    command: [sh, -c, 'npm ci && npm test && npm run build']

@@ -12,9 +12,9 @@ tracks the remaining grading work. Issue creation does not complete implementati
 | CAP-04 | Document AI-assisted development context | Complete | Agent instructions, role boundaries, collaboration protocol, and real-versus-proposed workflow are documented | `AGENTS.md`, `docs/AI_AGENT_WORKFLOW.md` |
 | CAP-05 | Public tracker and demonstrated agent use | In progress; independent review pending | Public tracker is linked; actual agent handoff and independent review demonstrate use | [Issue #1](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/1); [actual Codex review](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/1#issuecomment-6421542642) documents agent interaction; documentation publication authorized below; issue remains open |
 | CAP-06 | Public deployment evidence | Blocked on deployment approval | Repeatable deployment, public URL/demo, persistence and rollback evidence | [#4](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4); no deployment performed |
-| CAP-07 | PostgreSQL integration tests and single test command | Planned, P1 | Unit/frontend and real PostgreSQL integration tests pass through one command | [#2](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/2); current API tests use SQLite, UI tests mock fetch |
+| CAP-07 | PostgreSQL integration tests and single test command | Partially implemented under CAP-09, P1 | Unit/frontend and real PostgreSQL integration tests pass through one command | [#2](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/2); real PostgreSQL integration added with CI; combined single-command runner and broader coverage still pending; existing SQLite/UI mock tests retained |
 | CAP-08 | Full-stack reproducibility evidence | Planned, P1 | Isolated Compose startup, migrations, browser flow and restart persistence are recorded | [#3](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/3); supplements CAP-02/03 evidence |
-| CAP-09 | CI/CD and rollback | Blocked on CI/CD approval, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5) |
+| CAP-09 | CI/CD and rollback | In progress; CI implemented, deployment and independent review pending, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5) records actual publication/Actions results; [CI/CD setup and evidence](CI_CD.md); deployment jobs held, no hosted deployments |
 | CAP-10 | Correlated telemetry | Planned, P2 | Metrics, traces and structured logs share trace IDs and are viewable without customer data | [#6](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/6) |
 | CAP-11 | User-impact alert | Planned, P2 | Reversible isolated fault demonstrates firing and recovery | [#7](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7); depends on CAP-10 |
 | CAP-12 | Bounded on-call agent | Planned, P2 | Alert triggers agent diagnosis/remediation and demonstrated recovery | [#8](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8); depends on CAP-11 |
@@ -117,6 +117,110 @@ required. Existing CAP-01 through CAP-04 records are preserved, not newly verifi
   evidence before CAP-05 can be complete. Historical application test/migration
   claims were not re-executed by this documentation task. No application changes,
   CI/CD changes or deployment are included.
+
+## CI/CD implementation handoff - 2026-10-26
+
+- Task: CAP-09, Issue #5; owner: Codex implementer. User explicitly authorized
+  CI/CD configuration and an issue evidence update, but no commit, push or deployment.
+- Public handoff: [Issue #5 implementation evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5#issuecomment-6422151090).
+- Acceptance: CI on PR/main push runs backend, frontend, build, Docker validation
+  and isolated migrated PostgreSQL integration; separate gated CD workflows,
+  real setup prerequisites, minimal permissions and rollback documentation.
+- Files: `.github/workflows/ci.yml`, `.github/workflows/deploy-development.yml`,
+  `.github/workflows/deploy-production.yml`, `scripts/deploy.sh`,
+  `scripts/test-deploy.sh`, `compose.ci.yml`,
+  `backend/tests/integration/test_postgres.py`, `backend/.dockerignore`,
+  `frontend/.dockerignore`, `docs/CI_CD.md`, `docs/ARCHITECTURE.md`,
+  `docs/TASK_TRACKER.md`, `README.md`, `spec.md`.
+- Commands/results: read official rubric and Issue #5 via gh; built both images;
+  isolated `compose.ci.yml run --rm backend` migrated empty PostgreSQL through
+  all six revisions and passed 29 tests; isolated frontend run used npm ci,
+  passed five tests and production build. Existing stack checks also passed
+  (28 backend tests plus one intentionally skipped integration, five frontend tests).
+  actionlint passed all workflow files. bash syntax and missing-config/invalid-SHA
+  guards passed. `scripts/test-deploy.sh` passed mocked release/rollback, failed-CI,
+  stale-development, missing-config, invalid-SHA and async-response checks without
+  hosting access. All 13 local Markdown links resolved; changed-file credential
+  pattern and whitespace checks passed. Isolated stack removed with plain down,
+  no persistent volumes.
+- Findings: npm reported six vulnerabilities (three moderate, one high, two
+  critical); dependency remediation remains separate. One Starlette/AnyIO
+  deprecation warning. No customer data or hosting credentials used.
+- Risks/blockers: workflows remain local; successful GitHub PR checks require
+  later authorized publication. No real hosting adapter, deployment credentials,
+  approval settings, dev/prod deployment or hosted rollback drill is demonstrated.
+  Deploy jobs default to disabled via unset enable variables. Full CI/CD rubric
+  credit is not met; Issue #5 remains open. Independent reviewer validation pending.
+- Next owner: reviewer validates diff and evidence; owner authorizes eventual
+  publication and separately selects/configures hosting and production reviewers.
+
+## Frontend npm security remediation handoff - 2026-10-26
+
+- Task: follow-up to CAP-09 npm audit findings; owner: Codex implementer.
+- Scope/acceptance: identify package chains and exposure, apply compatible
+  remediation with major-change impact explained first, update both manifests,
+  pass clean install/tests/build/Docker checks, review CI/CD credentials and
+  permissions. Do not alter PostgreSQL data/volumes, commit, push or deploy.
+- Files changed in this task: `frontend/package.json`, `frontend/package-lock.json`,
+  `README.md`, `docs/CI_CD.md`, `docs/TASK_TRACKER.md`,
+  `docs/DEPENDENCY_SECURITY.md`, and three JSON reports in `docs/security/`.
+  All pre-existing CI/CD implementation files/edits were preserved.
+- Findings and fix: six dev-tool package entries (Vitest, mocker, tinypool,
+  nested Vite, esbuild, vite-node). No patched Vitest 2.x covers the advisories.
+  Explained Vitest 4 migration/Node requirements before selecting exact 4.1.12;
+  React/Vite/TypeScript/jsdom majors unchanged, no force or transitive overrides.
+  npm 10 resolver failed twice without manifest changes; disposable npm 11
+  update succeeded and ordinary npm 10 npm ci verified the resulting lock.
+- Commands/results: baseline `docker compose exec -T frontend npm audit --json`
+  found six (three moderate, one high, two critical); omit-dev audit found zero.
+  `docker build --tag apparel-frontend-audit:verified ./frontend` passed; fresh
+  `docker run --rm` (no mounted volumes) ran npm ci, five passing frontend tests,
+  production build, npm ls and both audits. Full and omit-dev audits now zero.
+  Workflow actionlint passed; manual review found only contents: read and
+  deployment actions: read, environment-scoped secret references, no secret
+  printing or credential literals. Fake CI/test credentials identified as such.
+- Evidence: [security assessment and raw audits](DEPENDENCY_SECURITY.md).
+- Risks/reviewer findings: implementer checks only; independent review remains
+  outstanding. Existing running frontend still uses old node_modules because no
+  existing volumes were modified. Rebuild/dependency refresh required before
+  using this fix there. No hosted image was inspected or deployed. Current Vite
+  dev-server Dockerfile is not approved for public production serving; zero npm
+  findings does not cover backend, OS images or all application security risks.
+- Next owner: independent reviewer validates the dependency change; owner
+  separately authorizes eventual publication/runtime refresh and hosting setup.
+
+## CI/CD and security publication handoff - 2026-10-26
+
+- Task: CAP-09; owner: Codex implementer. User authorized reviewing, validating,
+  committing all task files with `ci: add automated validation and dependency
+  security fixes`, and pushing origin/main normally. Hosted deployment remains
+  prohibited; Issue #5 must stay open until its acceptance criteria are met.
+- Scope/files: publish all pending CI workflows, deployment client/mock checks,
+  isolated PostgreSQL integration test and Compose file, Docker ignore rules,
+  frontend manifests, dependency security assessment/raw audits, README/spec,
+  architecture, CI/CD and tracker documentation. No application behavior change.
+- Review: contents: read only in CI; deployment adds actions: read. No secrets
+  found in inspected files/credential-pattern scan; test database credentials
+  are explicitly ephemeral. npm changes remove the six audited tool findings.
+  Existing audit snapshots and historical unpublished-file handoffs are retained.
+- Safety finding: GitHub API showed no repository deployment enable variables
+  and no deployment environments. Added explicit `false &&` publication holds
+  to both deployment jobs; changing variables alone cannot enable them. Holds
+  require a reviewed change after hosting/reviewer setup and owner authorization.
+- Checks: rebuilt both Docker images; isolated empty tmpfs PostgreSQL reached
+  Alembic `20261025_06` head and passed all 29 backend tests. Frontend clean npm ci,
+  five tests and production build passed after Vitest 4.1.12; full/production-only
+  audits both returned zero. actionlint and mocked deployment
+  script checks passed. Relative documentation links and whitespace checks passed.
+- Publication/run evidence: record the resulting commit, actual job conclusions
+  and run URLs in Issue #5 and the task response after pushing; do not predict
+  future Actions results in this commit. No production workflow is dispatched.
+- Remaining gaps: actual hosted dev/prod deployment, adapter/credentials,
+  production serving and protected environment configuration, real rollback drill,
+  PR-triggered run evidence and independent review. Vite dev server is not
+  production-ready. No existing database volumes are deleted/reset.
+- Next owner: reviewer assesses implementation and Actions evidence; owner
+  separately authorizes hosting configuration and deployment hold removal.
 
 ## Handoff template
 

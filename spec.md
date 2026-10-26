@@ -33,3 +33,12 @@ Payments, customer accounts, checkout, fulfillment, and production-accurate rend
 6. `POST /api/orders` recalculates the submitted price, saves the order request with status `new`, and never accepts a client price.
 7. Alembic migrates an empty PostgreSQL database to the latest revision without manual SQL.
 8. Backend and frontend automated tests pass, and the frontend production build succeeds.
+
+## Delivery validation
+
+CI must run backend tests, isolated PostgreSQL integration after Alembic
+migrations, frontend tests/build using the committed npm lockfile, and Docker
+image builds on pull requests and pushes to main. Deployment preparation must
+separate automatic development from manually approved production and document
+rollback. Hosting remains unconfigured; no public deployment is authorized by
+this specification. See [CI/CD setup](docs/CI_CD.md) for outstanding prerequisites.

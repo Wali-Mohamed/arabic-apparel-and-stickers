@@ -83,6 +83,27 @@ Health endpoints:
 - `GET /health/db`: SQLAlchemy PostgreSQL connectivity.
 - `GET /api/products`: current catalogue and product prices.
 
+## CI/CD
+
+The [frontend dependency security review](docs/DEPENDENCY_SECURITY.md) records
+remediation of the six npm audit findings: full and production-only audits now
+report zero for the rebuilt frontend. Vitest was upgraded explicitly to 4.1.12;
+tests and production build pass. The current development-server Docker image
+still needs production serving configuration before public hosting.
+
+[CI/CD setup and rollback](docs/CI_CD.md) documents the workflows and local
+isolated validation commands. CI checks backend tests, Alembic-migrated
+PostgreSQL integration, frontend tests/production build using `npm ci`, and both
+Docker image builds on pull requests and pushes to `main`.
+
+Separate development and production deployment workflows are prepared, but
+disabled by explicit publication holds until real hosting, credentials and
+production environment approval rules are configured and a reviewed code change
+removes the holds. No public deployment or completed rollback is claimed.
+See [Issue #5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5)
+and the [implementation evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5#issuecomment-6422151090)
+for actual results and blockers.
+
 ## AI-assisted development
 
 Remaining Zoomcamp grading work is tracked in the
