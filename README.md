@@ -2,6 +2,10 @@
 
 A React, FastAPI, and PostgreSQL capstone for Arabic-personalized apparel, tags, and HTV stickers. Prices are demonstration GBP prices; no payment processing is implemented.
 
+Small and Big Be Seen tags share a fixed design: English `Be` on the left and
+Arabic `س` on the right. Isolated script spans keep this order in cards, previews,
+order summaries and confirmations; customers cannot edit the design.
+
 ## Requirements
 
 - Docker Desktop with Docker Compose v2

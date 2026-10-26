@@ -10,6 +10,11 @@
 
 ## API flow
 
+The frontend shares one isolated LTR Be Seen design renderer across Small/Big
+tag cards, live previews, order summaries and confirmations. English and Arabic
+remain separate bidi isolates; Arabic shaping is preserved. This presentation
+change needs no catalogue migration or API payload change.
+
 1. The frontend loads `GET /api/products`.
 2. Product selections are submitted to `POST /api/products/{id}/price` with options and quantity.
 3. FastAPI validates Arabic text and allowed options, reads the matching `product_prices` row, and calculates any pair discount.

@@ -440,3 +440,53 @@ observed. Planned work must remain `Planned` or `Blocked`; it must not be marked
 - Remaining requirements: independent review, real Vercel project/environment
   setup and beta build verification, preview isolation, edge abuse protection,
   hosted synthetic-order smoke checks and approved rollback demonstration.
+
+## Fixed Be Seen bidirectional display handoff - 2026-10-26
+
+- Owner/role: Codex implementer; user requests a local-only display correction.
+  Acceptance: both Small/Big tags show English Be on the left and Arabic seen
+  on the right in isolated script spans, consistently across cards, live preview,
+  fixed-design details, order summary and successful order confirmation. Preserve
+  non-editable design, API payloads, prices, existing orders and unrelated products.
+- Findings: Small preview inherited RTL around mixed text; Big preview incorrectly
+  used the generic Arabic personalization placeholder. Only Small previously had
+  a fixed-design detail. No database metadata change is needed for rendering.
+- Implementation: one BeSeenDesign component uses dir=ltr, inline-flex row layout
+  and unicode-bidi:isolate, with separate English LTR and Arabic RTL/lang spans.
+  Both tag slugs use this renderer throughout the applicable frontend views.
+  Personalized products keep their RTL previews and existing validation controls.
+  Small payload remains design=be-seen; Big remains empty options as required by
+  the current backend. No Alembic/backend/API/pricing/order data changes.
+- Files changed: frontend/src/App.tsx, frontend/src/App.test.tsx, README.md,
+  spec.md, docs/ARCHITECTURE.md and this tracker.
+- Verification observed: disposable containers with --network none and read-only
+  repository mounts ran 42 backend tests (passed; one existing AnyIO deprecation
+  warning), eight frontend tests (passed) and TypeScript/Vite production build
+  (passed). Two parameterized product-flow regressions exercise RTL ancestors,
+  child text/order/isolation, both card/preview/summary/confirmation designs,
+  absence of editable Arabic/font controls and unchanged quote/order payloads.
+  git diff --check passed. No remote service or existing database/volume touched.
+- Limits/next owner: frontend tests verify DOM and layout declarations, not pixel
+  positions in a real browser. Independent browser/visual review remains pending.
+  No commit, push or deployment performed; owner reviews before publication.
+
+## Be Seen display fix publication handoff - 2026-10-26
+
+- Owner/role: Codex implementer. User authorizes review of the six-file fix,
+  frontend validation, commit fix: correct Be Seen tag text direction and normal
+  origin/main push, followed by CI and Vercel production status inspection.
+- Reviewed files: frontend/src/App.tsx, frontend/src/App.test.tsx, README.md,
+  spec.md, docs/ARCHITECTURE.md and this tracker. No unrelated diff or credential
+  patterns found. No backend, prices, orders, migrations or Neon credentials changed.
+- Validation: disposable offline frontend container passed all eight tests and
+  TypeScript/Vite production build. Both tag regression flows verify English
+  first/Arabic second in isolated LTR flex layout under an RTL ancestor, across
+  card/preview/summary/confirmation, and preserve fixed-design request payloads.
+  git diff --check passed; origin/main matched HEAD before publication.
+- Review remains implementer verification; independent browser pixel-position
+  verification has not been performed. Existing preceding handoff records backend
+  regression evidence. This publication does not connect to Neon or submit orders.
+- Status before publication: GitHub returned no deployments and no Vercel check
+  runs for current main; Vercel CLI unavailable locally. Inspect the newly pushed
+  commit's Actions/check/status/deployment metadata and report actual results.
+  No direct Vercel deployment is initiated or real secrets configured by this task.

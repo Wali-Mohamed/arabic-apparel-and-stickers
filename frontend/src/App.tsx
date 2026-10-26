@@ -2,6 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { MAX_PERSONALIZATION_GRAPHEMES, normalizeAndValidateArabicLetter, normalizeAndValidateArabicText } from './personalization'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:8000')
+const fixedTagSlugs = new Set(['small-be-seen-tag', 'big-be-seen-tag'])
+
+// Flex layout fixes visual order; each script remains a separate bidi isolate.
+function BeSeenDesign() {
+  return <span className="be-seen-design" dir="ltr" aria-label={'Be \u0633'} style={{ display: 'inline-flex', flexDirection: 'row', direction: 'ltr', unicodeBidi: 'isolate', gap: '0.25em' }}>
+    <span dir="ltr" lang="en" style={{ unicodeBidi: 'isolate' }}>Be</span>
+    <span dir="rtl" lang="ar" style={{ unicodeBidi: 'isolate' }}>{'\u0633'}</span>
+  </span>
+}
+
 const fonts = ['Amiri', 'Cairo', 'Tajawal']
 const stickerColours = [
   ['Black', '#000000'], ['White', '#FFFFFF'], ['Yellow', '#FFEA00'], ['Light Blue', '#37C5D3'], ['Red', '#E52B24'],
@@ -36,6 +46,7 @@ function App() {
   }, [])
 
   const requiresText = Boolean(selectedProduct && textProducts.has(selectedProduct.slug))
+  const isFixedTag = Boolean(selectedProduct && fixedTagSlugs.has(selectedProduct.slug))
   const isLetterTag = selectedProduct?.slug === 'small-arabic-letter-tag'
   const textValidation = useMemo(
     () => isLetterTag ? normalizeAndValidateArabicLetter(customization?.text ?? '') : normalizeAndValidateArabicText(customization?.text ?? ''),
@@ -77,7 +88,7 @@ function App() {
       setOrderMessage(`Order request #${data.id} sent. We will contact you shortly.`)
     } catch (requestError) { setOrderMessage(requestError instanceof Error ? requestError.message : 'Unable to send your order.') }
   }
-  const previewText = selectedProduct?.slug === 'small-be-seen-tag' ? 'Be \u0633' : textValidation.value || '\u0627\u0643\u062a\u0628 \u0627\u0633\u0645\u0643'
+  const previewText = textValidation.value || '\u0627\u0643\u062a\u0628 \u0627\u0633\u0645\u0643'
   const previewStyle = { fontFamily: `${customization?.font ?? 'Amiri'}, "Noto Naskh Arabic", serif`, color: selectedProduct?.slug === 'personalized-arabic-htv-sticker' ? customization?.colour : undefined }
 
   return <main className="catalogue-shell">
@@ -85,14 +96,14 @@ function App() {
     {error && <p role="alert">{error}</p>}
     {!error && products.length === 0 && <p>Loading catalogue...</p>}
     <section className="catalogue-grid" aria-label="Product catalogue">{products.map((product) => <article className="product-card" key={product.id}>
-      <p className="product-category">{product.category}</p><h2>{product.name}</h2><p>{product.description}</p>
+      <p className="product-category">{product.category}</p><h2>{product.name}</h2><p>{fixedTagSlugs.has(product.slug) ? <>Fixed Be Seen design: <BeSeenDesign /></> : product.description}</p>
       <p className="demo-price">Demo price from {formatPrice(Math.min(...product.prices.map((price) => price.price_pence)))}</p>
       <button type="button" onClick={() => openCustomizer(product)}>{textProducts.has(product.slug) ? 'Customize' : 'View details'}</button>
     </article>)}</section>
     {selectedProduct && customization && <section className="customizer" aria-labelledby="customizer-title">
       <div className="customizer-heading"><div><p className="product-category">{selectedProduct.category}</p><h2 id="customizer-title">{selectedProduct.name}</h2></div><button type="button" className="close-button" onClick={() => setSelectedProduct(null)}>Close</button></div>
       <div className="customizer-layout"><form className="customizer-form" onSubmit={(event) => event.preventDefault()}>
-        {selectedProduct.slug === 'small-be-seen-tag' && <p>Fixed Be Seen design: <b>Be <span dir="rtl" lang="ar">\u0633</span></b></p>}
+        {isFixedTag && <p>Fixed Be Seen design: <BeSeenDesign /></p>}
         {requiresText && <label htmlFor="personalized-text">{isLetterTag ? 'Arabic letter' : 'Arabic text or name'}
           <textarea id="personalized-text" value={customization.text} onChange={(event) => update({ text: event.target.value.normalize('NFC') })} aria-describedby="text-rules text-error" dir="rtl" lang="ar" rows={isLetterTag ? 1 : 3} />
           <small id="text-rules">{isLetterTag ? 'One Arabic letter, with optional diacritics.' : `Arabic letters, diacritics, spaces, hyphens, and Arabic or Western digits. Maximum ${MAX_PERSONALIZATION_GRAPHEMES} graphemes.`}</small>
@@ -103,8 +114,8 @@ function App() {
           <fieldset><legend>HTV colour</legend><div className="colour-choices">{stickerColours.map(([name, colour]) => <label className="colour-choice" key={colour}><input type="radio" name="colour" value={colour} checked={customization.colour === colour} onChange={() => update({ colour })} /><span style={{ backgroundColor: colour }} aria-hidden="true" /><span>{name}</span></label>)}</div></fieldset></>}
         <label>Quantity<input type="number" min="1" value={customization.quantity} onChange={(event) => update({ quantity: Math.max(1, Number(event.target.value) || 1) })} /></label>
       </form>
-      <aside className={`preview preview-${selectedProduct.slug}`} aria-label="Illustrative live preview"><p className="preview-label">Illustrative preview - not production-accurate</p><div className="preview-surface"><span className="preview-text" dir="rtl" lang="ar" style={previewStyle}>{previewText}</span></div><div className="quote" aria-live="polite">{quote && <strong>Demo total for {quote.quantity}: {formatPrice(quote.price_pence)}</strong>}{!quote && !quoteError && <span>{requiresText ? 'Enter valid personalization to calculate a demo price.' : 'Calculating demo price...'}</span>}{quoteError && <span role="alert">{quoteError}</span>}</div>
-        {quote && <form className="order-form" onSubmit={submitOrder}><h3>Send order request</h3><label>Your name<input required value={customerName} onChange={(event) => setCustomerName(event.target.value)} /></label><label>Email or phone<input required value={customerContact} onChange={(event) => setCustomerContact(event.target.value)} /></label><button type="submit">Send order request</button>{orderMessage && <p aria-live="polite">{orderMessage}</p>}</form>}
+      <aside className={`preview preview-${selectedProduct.slug}`} aria-label="Illustrative live preview"><p className="preview-label">Illustrative preview - not production-accurate</p><div className="preview-surface"><span className="preview-text" dir={isFixedTag ? "ltr" : "rtl"} lang={isFixedTag ? undefined : "ar"} style={previewStyle}>{isFixedTag ? <BeSeenDesign /> : previewText}</span></div><div className="quote" aria-live="polite">{quote && <strong>Demo total for {quote.quantity}: {formatPrice(quote.price_pence)}</strong>}{!quote && !quoteError && <span>{requiresText ? 'Enter valid personalization to calculate a demo price.' : 'Calculating demo price...'}</span>}{quoteError && <span role="alert">{quoteError}</span>}</div>
+        {quote && <form className="order-form" onSubmit={submitOrder}><h3>Send order request</h3>{isFixedTag && <p aria-label="Order summary">{selectedProduct.name}: <BeSeenDesign /></p>}<label>Your name<input required value={customerName} onChange={(event) => setCustomerName(event.target.value)} /></label><label>Email or phone<input required value={customerContact} onChange={(event) => setCustomerContact(event.target.value)} /></label><button type="submit">Send order request</button>{orderMessage && <p aria-live="polite">{orderMessage}{isFixedTag && orderMessage.startsWith("Order request #") && <> Design: <BeSeenDesign /></>}</p>}</form>}
       </aside>
       </div></section>}
   </main>

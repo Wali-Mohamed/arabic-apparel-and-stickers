@@ -15,7 +15,9 @@ Payments, customer accounts, checkout, fulfillment, and production-accurate rend
 
 ## Product rules
 
-- The fixed Small Be Seen tag displays `Be س` and cannot accept custom text.
+- Small and Big Be Seen tags display English `Be` on the left and Arabic `س` on
+  the right in an explicit LTR container with isolated script spans. Cards,
+  previews, order summaries and confirmations use the same fixed, non-editable design.
 - The rectangular tag supports Arabic names up to 24 graphemes.
 - The small letter-only tag accepts exactly one Arabic letter plus optional diacritics.
 - HTV sizes are 5 x 5, 9 x 4, and 12 x 3 inches.
