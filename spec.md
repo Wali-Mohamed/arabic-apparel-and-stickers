@@ -42,3 +42,17 @@ image builds on pull requests and pushes to main. Deployment preparation must
 separate automatic development from manually approved production and document
 rollback. Hosting remains unconfigured; no public deployment is authorized by
 this specification. See [CI/CD setup](docs/CI_CD.md) for outstanding prerequisites.
+
+## Production preparation acceptance criteria
+
+1. Separate production images build Vite static assets and serve them with a
+   production web server, while development hot reload remains available.
+2. Browser API traffic stays same-origin through a reverse proxy; FastAPI runs
+   without auto-reload and PostgreSQL has no public port.
+3. Production requires explicit credentials, trusted hosts and exact origin;
+   health checks and a separate migration job gate startup.
+4. Isolated production-style browser tests demonstrate browsing, RTL Arabic
+   personalization, server pricing and persisted synthetic orders, security
+   rejection paths and API restart persistence.
+5. Hosting/TLS setup, resource/cost estimates, rollback and outstanding public
+   deployment evidence are documented without claiming a live deployment.

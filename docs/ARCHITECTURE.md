@@ -24,7 +24,21 @@
 - `orders`: product reference, customer name/contact, selected options JSON, quantity, calculated total in pence, status, and timestamp.
 - `alembic_version`: current migration revision.
 
-## Local networking
+## Production configuration
+
+The standalone `compose.production.yml` uses separate production Dockerfiles;
+the original development stack keeps its source mounts and hot reload. Nginx
+serves the Vite dist build and proxies same-origin `/api/` and health endpoints
+to a private non-reloading two-worker FastAPI service. An explicit migration
+job runs first. PostgreSQL and the API have no published ports and use private
+networks; only the frontend can bind a host socket (loopback by default).
+An external trusted TLS edge, DNS, secrets and hosting still need configuration.
+Production requires exact PUBLIC_ORIGIN/ALLOWED_HOSTS and database credentials;
+it disables API docs, rejects foreign write Origins, validates Host and hides SQL
+parameters. No database schema changes are introduced. See the
+[production runbook](PRODUCTION_DEPLOYMENT.md) for security limits and smoke tests.
+
+## Development networking
 
 - Browser: `http://localhost:5173`
 - FastAPI: `http://localhost:8000`

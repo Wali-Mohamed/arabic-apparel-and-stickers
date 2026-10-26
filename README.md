@@ -89,12 +89,16 @@ The [frontend dependency security review](docs/DEPENDENCY_SECURITY.md) records
 remediation of the six npm audit findings: full and production-only audits now
 report zero for the rebuilt frontend. Vitest was upgraded explicitly to 4.1.12;
 tests and production build pass. The current development-server Docker image
-still needs production serving configuration before public hosting.
+is for local hot reload. [Production deployment preparation](docs/PRODUCTION_DEPLOYMENT.md)
+provides separate Nginx/static and non-reloading API images, private PostgreSQL,
+required environment settings and an isolated browser smoke-test command.
 
 [CI/CD setup and rollback](docs/CI_CD.md) documents the workflows and local
 isolated validation commands. CI checks backend tests, Alembic-migrated
 PostgreSQL integration, frontend tests/production build using `npm ci`, and both
-Docker image builds on pull requests and pushes to `main`.
+development Docker image builds on pull requests and pushes to `main`. The
+production-smoke job also builds production images and checks the real browser
+journey; actual published run results are recorded in Issue #5.
 
 Separate development and production deployment workflows are prepared, but
 disabled by explicit publication holds until real hosting, credentials and

@@ -40,7 +40,8 @@ The direct production dependencies are React and React DOM; the before-change
 - The current Dockerfile installs development tools and runs `vite --host
   0.0.0.0`, so devDependency classification alone does not make a deployment safe.
   Do not expose this development container publicly. Use a production static
-  server for the built assets before public hosting. There is no verified public
+  server for the built assets; the subsequent production-preparation work adds
+  separate Nginx production images (see the production runbook). There is no verified public
   deployment whose running image can be declared fixed by these local changes.
 
 ## Remediation and compatibility
@@ -121,8 +122,9 @@ that the new lockfile is vulnerable. Do not publish an old image.
 Recommendation: the npm findings are resolved for the newly built frontend,
 and this dependency change is suitable for source publication after independent
 review. This is not a complete application security audit or public-hosting
-approval. Public hosting still needs production static serving, backend production
-configuration, HTTPS/API/CORS setup and the deployment protections in
+approval. Subsequent [production preparation](PRODUCTION_DEPLOYMENT.md) adds local
+static serving and API configuration. Public hosting still needs actual
+HTTPS/API/CORS host settings and the deployment protections in
 [CI/CD setup](CI_CD.md). Keep dev/test servers private. No public deployment was
 performed, and no existing hosted runtime was verified. Audit results are a dated
 registry snapshot; rerun before release.

@@ -61,7 +61,7 @@ function App() {
   function orderOptions(): Record<string, string> {
     const options: Record<string, string> = {}
     if (!selectedProduct || !customization) return options
-    if (selectedProduct.slug === 'small-be-seen-tag') options.design = 'b-series'
+    if (selectedProduct.slug === 'small-be-seen-tag') options.design = 'be-seen'
     if (requiresText) Object.assign(options, { text: textValidation.value, font: customization.font })
     if (selectedProduct.slug === 'personalized-arabic-htv-sticker') Object.assign(options, { size: customization.size, colour: customization.colour })
     return options

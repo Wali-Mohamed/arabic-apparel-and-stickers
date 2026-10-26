@@ -11,7 +11,7 @@ tracks the remaining grading work. Issue creation does not complete implementati
 | CAP-03 | Protect HTV migration compatibility | Complete | PostgreSQL JSON/JSONB migration reaches head on an empty database | `backend/alembic/versions/20261025_06_update_htv_colours.py`; isolated local verification was performed on 2026-10-26 |
 | CAP-04 | Document AI-assisted development context | Complete | Agent instructions, role boundaries, collaboration protocol, and real-versus-proposed workflow are documented | `AGENTS.md`, `docs/AI_AGENT_WORKFLOW.md` |
 | CAP-05 | Public tracker and demonstrated agent use | In progress; independent review pending | Public tracker is linked; actual agent handoff and independent review demonstrate use | [Issue #1](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/1); [actual Codex review](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/1#issuecomment-6421542642) documents agent interaction; documentation publication authorized below; issue remains open |
-| CAP-06 | Public deployment evidence | Blocked on deployment approval | Repeatable deployment, public URL/demo, persistence and rollback evidence | [#4](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4); no deployment performed |
+| CAP-06 | Public deployment evidence | Production configuration implemented; hosting/approval pending | Repeatable deployment, public URL/demo, persistence and rollback evidence | [#4](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4); [production runbook](PRODUCTION_DEPLOYMENT.md); no public deployment performed |
 | CAP-07 | PostgreSQL integration tests and single test command | Partially implemented under CAP-09, P1 | Unit/frontend and real PostgreSQL integration tests pass through one command | [#2](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/2); real PostgreSQL integration added with CI; combined single-command runner and broader coverage still pending; existing SQLite/UI mock tests retained |
 | CAP-08 | Full-stack reproducibility evidence | Planned, P1 | Isolated Compose startup, migrations, browser flow and restart persistence are recorded | [#3](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/3); supplements CAP-02/03 evidence |
 | CAP-09 | CI/CD and rollback | In progress; CI implemented, deployment and independent review pending, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5) records actual publication/Actions results; [CI/CD setup and evidence](CI_CD.md); deployment jobs held, no hosted deployments |
@@ -221,6 +221,89 @@ required. Existing CAP-01 through CAP-04 records are preserved, not newly verifi
   production-ready. No existing database volumes are deleted/reset.
 - Next owner: reviewer assesses implementation and Actions evidence; owner
   separately authorizes hosting configuration and deployment hold removal.
+
+## Production deployment preparation handoff - 2026-10-26
+
+- Task: CAP-06/CAP-09, Issues #4/#5; owner: Codex implementer. User authorized
+  production code/configuration, local tests, hosting research and issue comments;
+  no public deployment, purchase, secret/settings changes, commit or push.
+- Acceptance: separate static production frontend and non-reloading API;
+  development hot reload retained; same-origin API routing, private PostgreSQL,
+  explicit production credentials/host/origin checks, health and migration gates;
+  production build/browser/persistence smoke tests and deployment/cost runbook.
+- Files changed: `.github/workflows/ci.yml`, `.gitignore`,
+  `.env.production.example`, `backend/Dockerfile.production`,
+  `backend/app/main.py`, `backend/app/database.py`, `backend/alembic/env.py`,
+  `backend/tests/test_production_settings.py`, `frontend/Dockerfile.production`,
+  `frontend/nginx.production.conf`, `frontend/src/App.tsx`,
+  `frontend/src/App.test.tsx`, `compose.production.yml`,
+  `compose.production-smoke.yml`, `scripts/test-production.sh`,
+  `tests/production/{Dockerfile,.dockerignore,package.json,package-lock.json,production.spec.js}`,
+  `README.md`, `spec.md`, `docs/ARCHITECTURE.md`, `docs/CI_CD.md`,
+  `docs/DEPENDENCY_SECURITY.md`, `docs/PRODUCTION_DEPLOYMENT.md`, this tracker.
+- Implementation finding: fixed-tag order payload used obsolete b-series design
+  while quote/backend expected be-seen; corrected and covered by frontend unit
+  regression and real browser fixed-tag order. No catalogue/pricing rule changed.
+- Observed validation: both development images and production images built;
+  backend suite passed 31 tests including real PostgreSQL integration and
+  production Host/Origin/docs checks. Frontend npm ci, six tests and production
+  build passed; production-only npm audit returned zero. Nginx config test and
+  static-only runtime checks passed; actionlint passed added workflow job.
+  Two production browser tests passed, two synthetic orders committed, and
+  persistence/reverse proxy health survived API restart. Smoke tests use only
+  new tmpfs projects and no host ports; no existing database volumes were changed.
+- Test development: initial orchestration attempt inside a Python image lacked
+  Docker CLI; reran with host Git Bash. First browser pass exposed an overly
+  exact Font selector; corrected the selector, then both browser tests passed.
+  These failed attempts are not claimed as successful verification.
+- Evidence details: [production runbook](PRODUCTION_DEPLOYMENT.md),
+  [Issue #4 evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4#issuecomment-6423974006),
+  [Issue #5 evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5#issuecomment-6423974418).
+  Final smoke assertions passed: no host port
+  bindings, no persistent database mounts, URL-special password accepted by
+  migrations; both browser tests and API-restart persistence passed again.
+  Final production backend image rejected missing database credentials;
+  changed-file credential/whitespace checks and 28 relative Markdown links passed.
+- Risks/remaining gates: local HTTP smoke is not public TLS verification;
+  hosting/DNS/TLS, real secret storage, protected production reviewers, hosted
+  rollback/restore drill and independent review remain pending. Order submission
+  is intentionally unauthenticated; edge abuse limits/retention and least-privilege
+  DB account need review before real customer use. New CI job has no hosted run.
+- Next owner: independent reviewer validates config and evidence; owner chooses
+  hosting and separately authorizes publication/deployment. Both Issues stay open
+  and existing false deployment workflow holds remain unchanged.
+
+## Production stack publication handoff - 2026-10-26
+
+- Task: CAP-06/CAP-09; owner: Codex implementer. User explicitly authorizes
+  committing the 27 reviewed production-readiness files with
+  `feat: add production stack and browser smoke tests` and a normal origin/main
+  push after checks pass. No public deployment or GitHub secret/approval changes.
+- Scope: publish production images/Compose, runtime security settings, fixed-tag
+  regression, automated browser smoke job/tooling and supporting documentation.
+  Full file inventory is in the production-preparation handoff immediately above.
+- Review: all modified/untracked files belong to that scope. No real credentials
+  found; production example password is empty and required at runtime. Test-only
+  credentials are explicitly synthetic. No volume deletion/reset commands added;
+  cleanup uses plain down against uniquely named disposable projects only.
+- Safety: both deployment job conditions still begin with false publication
+  holds. GitHub API returned no deployment variable names and no environments.
+  CI browser smoke is implemented under contents: read, not a public deployment.
+- Verification: standalone production Compose and development Compose validated
+  quietly. Development Dockerfiles/compose.yml are unchanged; read-only HTTP
+  checks returned 200 for UI, /@vite/client, API health/DB health and catalogue.
+  Rebuilt both development/test images and production runtime/browser images;
+  backend/PostgreSQL rerun passed 31 tests; frontend npm ci, six tests and build
+  passed; both browser tests and restart persistence/isolation assertions passed.
+  Workflow lint, quiet production Compose validation, relative links and
+  credential/whitespace checks passed. Actual commit/run URLs and job conclusions
+  are reported in Issues #4/#5 after push.
+- Review limitations: this is implementer verification, not independent approval.
+  Public DNS/TLS, provider adapter/credentials, production reviewers, actual
+  dev/prod deployments, public demo, hosted rollback/restore drill and independent
+  review remain pending. Vite development server is not used as production serving.
+- Next owner: reviewer validates published evidence; owner separately chooses
+  hosting and authorizes any deployment hold removal. Keep Issues #4/#5 open.
 
 ## Handoff template
 

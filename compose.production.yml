@@ -1,0 +1,78 @@
+# Standalone production configuration. Do not merge with compose.yml.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-apparel}
+      POSTGRES_USER: ${POSTGRES_USER:-apparel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a strong POSTGRES_PASSWORD}
+    volumes:
+      - production-postgres-data:/var/lib/postgresql/data
+    networks: [data]
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    security_opt: [no-new-privileges:true]
+  migrate:
+    image: apparel-backend-production:${RELEASE_TAG:-local}
+    environment: &backend-environment
+      APP_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-apparel}
+      POSTGRES_USER: ${POSTGRES_USER:-apparel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a strong POSTGRES_PASSWORD}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:?Set comma-separated trusted hosts including 127.0.0.1 for health checks}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Set the exact public origin}
+    command: [alembic, upgrade, head]
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [data]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  backend:
+    image: apparel-backend-production:${RELEASE_TAG:-local}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.production
+    environment: *backend-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks: [api, data]
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  frontend:
+    image: apparel-frontend-production:${RELEASE_TAG:-local}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.production
+    ports:
+      - '${FRONTEND_BIND_ADDRESS:-127.0.0.1}:${FRONTEND_PORT:-8080}:8080'
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [edge, api]
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+networks:
+  edge:
+  api:
+    internal: true
+  data:
+    internal: true
+volumes:
+  production-postgres-data:

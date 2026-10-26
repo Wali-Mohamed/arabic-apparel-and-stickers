@@ -1,0 +1,17 @@
+# Use ONLY with an isolated project for synthetic tests; never on live data.
+services:
+  frontend:
+    ports: !reset []
+  postgres:
+    volumes: !reset []
+    tmpfs: [/var/lib/postgresql/data]
+  browser:
+    profiles: [smoke]
+    build:
+      context: ./tests/production
+    environment:
+      BASE_URL: http://frontend:8080
+    depends_on:
+      frontend:
+        condition: service_healthy
+    networks: [edge]

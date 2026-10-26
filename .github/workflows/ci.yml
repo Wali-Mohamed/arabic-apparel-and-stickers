@@ -92,3 +92,12 @@ jobs:
         with:
           persist-credentials: false
       - run: docker build --tag apparel-${{ matrix.service }}:ci ./${{ matrix.service }}
+  production-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build and smoke-test isolated production images
+        run: bash scripts/test-production.sh

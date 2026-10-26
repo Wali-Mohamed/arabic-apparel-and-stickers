@@ -37,4 +37,21 @@ describe('App', () => {
     fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '2' } })
     await waitFor(() => expect(screen.getByText('Demo total for 2: £8.50')).toBeInTheDocument())
   })
+
+  it('submits the fixed tag with the same supported design as its quote', async () => {
+    const api = vi.fn((url: string, init?: RequestInit) => {
+      if (url.endsWith('/api/products')) return Promise.resolve({ ok: true, json: async () => products })
+      if (url.endsWith('/api/orders')) return Promise.resolve({ ok: true, json: async () => ({ id: 42 }) })
+      return Promise.resolve({ ok: true, json: async () => ({ price_pence: 500, quantity: 1 }) })
+    })
+    vi.stubGlobal('fetch', api)
+    render(<App />)
+    fireEvent.click(await screen.findByRole('button', { name: 'View details' }))
+    fireEvent.change(await screen.findByLabelText('Your name'), { target: { value: 'Synthetic customer' } })
+    fireEvent.change(screen.getByLabelText('Email or phone'), { target: { value: 'test@example.invalid' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Send order request' }))
+    await screen.findByText(/Order request #42 sent/)
+    const request = api.mock.calls.find(([url]) => url.endsWith('/api/orders'))
+    expect(JSON.parse(String(request?.[1]?.body)).options).toEqual({ design: 'be-seen' })
+  })
 })

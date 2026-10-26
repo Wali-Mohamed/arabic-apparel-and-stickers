@@ -15,6 +15,10 @@ variables. They cannot deploy from this publication, including manual dispatch.
 | [Production](../.github/workflows/deploy-production.yml) | Manual workflow_dispatch on main with full release_sha | Currently held; future release/rollback requires reviewed hold removal, PRODUCTION_DEPLOY_ENABLED=true and production required-reviewer protection |
 
 CI uses contents: read only, no deployment credentials and no image push.
+The production-smoke job builds separate production images and exercises an
+isolated browser-to-Nginx-to-API-to-PostgreSQL stack automatically on PRs/main
+pushes. Actual run results are recorded in Issue #5, separately from held hosted
+deployment work. See [production deployment](PRODUCTION_DEPLOYMENT.md).
 The backend job also runs `bash scripts/test-deploy.sh` with fake GitHub/curl
 tools to check guard failures, async-response rejection and release/rollback
 requests without network calls. This is client validation, not a hosting drill.
@@ -60,8 +64,9 @@ not an old running application image. Neither command contacts a hosting provide
    build immutable release images, and record previous/current image digests,
    commit SHAs and Alembic revision. Keep environment databases separate and
    persistent, with backups. Configure actual browser API URL, HTTPS, and CORS.
-   Current frontend Dockerfile runs Vite development server and backend runs
-   Uvicorn reload: prepare production serving before any public deployment.
+   Development Dockerfiles intentionally retain Vite/Uvicorn reload. Use the
+   new production Dockerfiles and standalone production Compose configuration;
+   local production serving is prepared, actual hosted configuration is pending.
 3. Adapter runs migrations once per release, deploys both services, verifies
    /health, /health/db, catalogue and browser-to-API quote behavior, and returns
    HTTP 200/204 ONLY after successful readiness checks. An async 202 response must not be
