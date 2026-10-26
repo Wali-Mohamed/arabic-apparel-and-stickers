@@ -83,4 +83,27 @@ Health endpoints:
 - `GET /health/db`: SQLAlchemy PostgreSQL connectivity.
 - `GET /api/products`: current catalogue and product prices.
 
-See [spec.md](spec.md) for product acceptance criteria and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for application architecture.
+## AI-assisted development
+
+Remaining Zoomcamp grading work is tracked in the
+[public GitHub Issues tracker](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues).
+Each issue includes priority, acceptance criteria and required evidence:
+
+- [#1: Agent use of the tracker](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/1)
+- [#2: PostgreSQL integration tests and one test command](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/2)
+- [#3: Full-stack reproducibility evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/3)
+- [#4: Public deployment](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4)
+- [#5: CI/CD and rollback](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5)
+- [#6: Correlated telemetry](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/6)
+- [#7: User-impact alert](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7)
+- [#8: On-call responder agent](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8)
+- [#9: Grading evidence and independent review](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/9)
+
+These issues describe remaining work; they do not claim implemented capabilities.
+
+Project instructions for coding agents are in [AGENTS.md](AGENTS.md). The
+[AI agent workflow](docs/AI_AGENT_WORKFLOW.md) distinguishes documented Codex
+use from proposed collaboration roles, and the
+[task tracker](docs/TASK_TRACKER.md) records task status and evidence. See
+[spec.md](spec.md) for product acceptance criteria and
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for application architecture.
