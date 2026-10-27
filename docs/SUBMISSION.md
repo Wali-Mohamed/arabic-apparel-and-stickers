@@ -4,8 +4,17 @@
 - Repository: [Wali-Mohamed/arabic-apparel-and-stickers](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers)
 - Rubric: [AI Dev Tools Zoomcamp 2026 final project](https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/blob/main/project/README.md)
 - Public backlog: [GitHub Issues](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues)
-- Implementation evidence baseline: [e9d8ef9](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/commit/e9d8ef914c056bf2da6754f78bdea26dda8edcad)
-- Matching [CI run: all six jobs passed](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40546052593).
+- **Submitted revision:** [725f6db2e15c6aa1a4f0979b2972e1a6d7d6d56d](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/commit/725f6db2e15c6aa1a4f0979b2972e1a6d7d6d56d). This is the fixed submission reference, not a claim about the latest repository commit or current production deployment.
+- **Submitted revision CI:** [40552555581: all six jobs passed](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40552555581), for the exact submitted SHA above.
+- Historical implementation/deployment evidence baseline: [e9d8ef9](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/commit/e9d8ef914c056bf2da6754f78bdea26dda8edcad).
+- Historical baseline CI: [40546052593: all six jobs passed](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40546052593), for e9d8ef9, not the final submission commit.
+
+Review the repository at the final submitted SHA, rather than a moving `main`.
+The submitted revision adds documentation and the Vercel screenshot to the historical
+implementation baseline; application code and workflows are unchanged between
+these two commits. Relative file/image links refer to the checked-out revision.
+Historical screenshots, transcripts and issue comments retain their original
+commit/run context; they are not evidence of a new demonstration at the final SHA.
 
 React/Vite and FastAPI are publicly deployed in one Vercel Services (beta)
 project, with same-origin API routes and SSL-connected Neon PostgreSQL. This is
@@ -39,18 +48,26 @@ rubric's exact maximum marks; open issue acceptance criteria can be stricter.
 
 ## Vercel deployment evidence: facts versus inference
 
-![Owner-provided Vercel screenshot showing Production Current, Ready, main/e9d8ef9 and the live domain](evidence/vercel-production-deployment.png)
+![Historical Vercel deployment of e9d8ef9: Production Current and Ready at capture time](evidence/vercel-production-deployment.png)
+
+| Screenshot evidence | Commit demonstrated | Scope |
+| --- | --- | --- |
+| [vercel-production-deployment.png](evidence/vercel-production-deployment.png) | `e9d8ef914c056bf2da6754f78bdea26dda8edcad` | Historical production deployment and domain mapping at capture time. |
+| No screenshot for the submitted revision found in `docs/evidence/` during this review | `725f6db2e15c6aa1a4f0979b2972e1a6d7d6d56d` | CI is verified separately; deployment of this revision is not established by the available screenshots. |
 
 The supplied screenshot was visually reviewed. It shows **Ready / Latest**,
 **Production / Current**, Git source **main**, commit **e9d8ef9**, and domain
 `arabic-apparel-and-stickers.vercel.app`. No credentials or customer information
 were visible. It is owner-provided evidence, not an independent provider audit,
 and records the state at capture time rather than a permanent alias guarantee.
+The visible Latest/Current badges describe that captured deployment state, not
+the latest repository revision. The original image is preserved unchanged.
 
-- Full source SHA: `e9d8ef914c056bf2da6754f78bdea26dda8edcad`.
+- Historical deployment source SHA: `e9d8ef914c056bf2da6754f78bdea26dda8edcad`.
+- Final submitted repository SHA is `725f6db2e15c6aa1a4f0979b2972e1a6d7d6d56d`; this screenshot does not establish its production alias mapping.
 - [Vercel deployment record](https://vercel.com/aim-aster/arabic-apparel-and-stickers/AaevsyrhBfRpfh66i2rtPVomfkPj).
 - [GitHub Vercel bot statuses](https://api.github.com/repos/Wali-Mohamed/arabic-apparel-and-stickers/commits/e9d8ef914c056bf2da6754f78bdea26dda8edcad/statuses): Pending at 2026-10-27 16:58:03 UTC; Success at 16:58:32 UTC.
-- [Push CI](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40546052593) began at 16:58:03 UTC and completed successfully at 16:59:23 UTC. Backend, PostgreSQL integration, frontend, both Docker builds and production smoke all passed.
+- [Historical baseline push CI](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40546052593) began at 16:58:03 UTC and completed successfully at 16:59:23 UTC for e9d8ef9. Backend, PostgreSQL integration, frontend, both Docker builds and production smoke all passed. Final submission CI is the separate run linked at the top.
 
 Those timestamps and the Git source strongly support deployment following the
 push through Vercel's Git integration. They do **not** independently prove the
@@ -61,7 +78,7 @@ record was retrieved. The public frontend/health/database-health/catalogue GETs
 returned 200 and eight products during the grading audit; no new order was made.
 
 Vercel completed before all CI jobs finished, so no CI-gated Vercel release is
-claimed. [GitHub development deployment](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40546268002)
+claimed. [Historical baseline GitHub development deployment](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40546268002)
 was skipped under its explicit hold; the manual production job is also held.
 These jobs are separate from Vercel's integration. See [CI/CD and rollback](CI_CD.md).
 The rubric's additional staged-delivery point and a hosted rollback drill remain
@@ -70,7 +87,13 @@ undemonstrated. No new deployment is required merely to document existing facts.
 ## Reviewer setup and tests
 
 Use Git and Docker Desktop with Linux containers and Compose v2. Clone the repo
-and run the following from its root in PowerShell. Preserve any existing .env:
+and check out the final submitted SHA in a clean reviewer checkout:
+
+```powershell
+git checkout --detach 725f6db2e15c6aa1a4f0979b2972e1a6d7d6d56d
+```
+
+Run the following from its root in PowerShell. Preserve any existing .env:
 
 ```powershell
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }

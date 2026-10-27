@@ -878,3 +878,51 @@ observed. Planned work must remain `Planned` or `Blocked`; it must not be marked
 - Final local validation: 67 relative links and four heading anchors resolve;
   PNG has no text/EXIF metadata chunks; credential-pattern and whitespace checks
   pass. Exactly seven documentation/evidence files are selected for publication.
+
+## Final submitted SHA clarification - 2026-10-27
+
+- User identifies 725f6db2e15c6aa1a4f0979b2972e1a6d7d6d56d as the final
+  submitted commit. Updated docs/SUBMISSION.md locally to name it and its exact
+  successful CI 40552555581; e9d8ef9 / CI 40546052593 and the Vercel screenshot
+  remain explicitly historical evidence. Both runs match their stated full SHAs.
+- Added a clean-checkout instruction for the final SHA. The two commits differ
+  only in documentation/image files; no later production mapping is inferred
+  from the earlier screenshot. Existing heading anchors were preserved.
+- Validation: 28 relative links exist locally and in the final Git tree;
+  relevant heading anchors and git diff --check pass. External references were
+  checked using HTTP and GitHub API fallback after some page requests timed out;
+  both commits/runs, rubric and four issue-comment targets resolve correctly.
+- Files changed: docs/SUBMISSION.md and this handoff record. No application code,
+  staging, commit, push, issue changes or deployment. These local clarifications
+  do not alter the immutable already-submitted commit.
+
+## Screenshot-to-revision review - 2026-10-27
+
+- Inspected docs/evidence/: only vercel-production-deployment.png exists. Visual
+  inspection confirms source main/e9d8ef9, Ready and Production with the public
+  domain. Its Git blob is unchanged from the submitted revision.
+- Added an explicit screenshot/commit mapping in docs/SUBMISSION.md. No newer
+  screenshot for 725f6db exists; no production deployment or alias assignment
+  for that SHA is claimed. Latest/Current badges are historical capture labels.
+- 725f6db2e15c6aa1a4f0979b2972e1a6d7d6d56d remains the fixed submitted
+  revision, not a latest-commit claim. CI 40552555581 matches that SHA; historical
+  CI 40546052593 matches e9d8ef9. Both were rechecked and remain successful.
+- Relative documentation links and heading anchors validate; prior checked
+  external links are preserved. Only these two Markdown files are modified;
+  screenshot and application code unchanged. No staging, commit, push, issue
+  mutation or deployment operation.
+
+## Revision clarification publication - 2026-10-27
+
+- Owner now authorizes publishing the two documentation corrections. Prior
+  no-commit handoffs above describe the earlier review stage, not this release.
+- Submitted revision remains 725f6db2e15c6aa1a4f0979b2972e1a6d7d6d56d;
+  e9d8ef9 remains the screenshot's historical deployment source. Both retained
+  CI runs rechecked successful with exact matching SHAs. Screenshot Git blob
+  remains 806f3c97527e525623abe28a0523c2aeda8a5529, unchanged.
+- Review found no unrelated changes or sensitive data. All 38 local links,
+  three heading anchors and git diff --check pass. Existing external references
+  were preserved. Only docs/SUBMISSION.md and docs/TASK_TRACKER.md are staged
+  for the authorized commit/push; no application/configuration changes.
+- The new documentation commit does not replace the submitted revision or
+  establish a deployment for it. Publication CI results are reported separately.
