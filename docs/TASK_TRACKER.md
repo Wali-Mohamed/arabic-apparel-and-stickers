@@ -11,14 +11,14 @@ tracks the remaining grading work. Issue creation does not complete implementati
 | CAP-03 | Protect HTV migration compatibility | Complete | PostgreSQL JSON/JSONB migration reaches head on an empty database | `backend/alembic/versions/20261025_06_update_htv_colours.py`; isolated local verification was performed on 2026-10-26 |
 | CAP-04 | Document AI-assisted development context | Complete | Agent instructions, role boundaries, collaboration protocol, and real-versus-proposed workflow are documented | `AGENTS.md`, `docs/AI_AGENT_WORKFLOW.md` |
 | CAP-05 | Public tracker and demonstrated agent use | In progress; independent review pending | Public tracker is linked; actual agent handoff and independent review demonstrate use | [Issue #1](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/1); [actual Codex review](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/1#issuecomment-6421542642) documents agent interaction; documentation publication authorized below; issue remains open |
-| CAP-06 | Public deployment evidence | Public API/quote/synthetic-order checks passed; Documentation publication authorized; independent review pending | Repeatable deployment, public URL/demo, persistence and rollback evidence | [#4](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4); [public demo](https://arabic-apparel-and-stickers.vercel.app/); [verified evidence](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4#issuecomment-6428990374); Issue #4 remains open |
-| CAP-07 | PostgreSQL integration tests and single test command | Partially implemented under CAP-09, P1 | Unit/frontend and real PostgreSQL integration tests pass through one command | [#2](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/2); real PostgreSQL integration added with CI; combined single-command runner and broader coverage still pending; existing SQLite/UI mock tests retained |
-| CAP-08 | Full-stack reproducibility evidence | Planned, P1 | Isolated Compose startup, migrations, browser flow and restart persistence are recorded | [#3](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/3); supplements CAP-02/03 evidence |
-| CAP-09 | CI/CD and rollback | In progress; CI implemented, deployment and independent review pending, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5) records actual publication/Actions results; [CI/CD setup and evidence](CI_CD.md); GitHub deployment jobs held; public Vercel demo verified, approved dev/prod CD and rollback evidence pending |
+| CAP-06 | Public deployment evidence | Hosted checks and owner production screenshot published with submission evidence; independent review pending | Repeatable deployment, public URL/demo, persistence and rollback evidence | [#4](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4); [public demo](https://arabic-apparel-and-stickers.vercel.app/); [submission evidence](SUBMISSION.md); screenshot shows main/e9d8ef9 and live domain at capture time; hosted rollback remains unverified |
+| CAP-07 | PostgreSQL integration tests and single test command | Backend unit/integration command verified; full combined runner and independent review pending, P1 | Unit/frontend and real PostgreSQL integration tests pass through one command | [#2](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/2); [test commands](SUBMISSION.md#reviewer-setup-and-tests); backend unit/PostgreSQL tests run together; frontend/browser remain separate |
+| CAP-08 | Full-stack reproducibility evidence | CI browser, isolated migrations and restart persistence verified; independent review pending, P1 | Isolated Compose startup, migrations, browser flow and restart persistence are recorded | [#3](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/3); [production smoke script](../scripts/test-production.sh); successful CI 40546052593; supplements CAP-02/03 evidence |
+| CAP-09 | CI/CD and rollback | CI and Vercel deployment evidenced; automatic trigger inferred; staged delivery, rollback and independent review pending, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5); [submission evidence](SUBMISSION.md#vercel-deployment-evidence-facts-versus-inference); GitHub deployment jobs remain held |
 | CAP-10 | Correlated telemetry | Local pipeline, screenshots and owner log/trace navigation verified; independent review pending, P2 | Metrics, traces and structured logs share trace IDs and are viewable without customer data | [#6](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/6) |
-| CAP-11 | User-impact alert | Local firing/notification/recovery verified; publication authorized; screenshots and independent review pending, P2 | Reversible isolated fault demonstrates firing and recovery | [#7](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7); depends on CAP-10 |
+| CAP-11 | User-impact alert | Published local firing/notification/recovery verified; screenshots and independent review pending, P2 | Reversible isolated fault demonstrates firing and recovery | [#7](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7); depends on CAP-10 |
 | CAP-12 | Bounded on-call agent | Local real-model investigation/remediation/recovery verified; screenshots and independent review pending, P2 | Alert triggers agent diagnosis/remediation and demonstrated recovery | [#8](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8); depends on CAP-11; [runbook](ONCALL.md) |
-| CAP-13 | Grading evidence and independent review | Planned, P1 | All current criteria mapped to verified evidence; remaining gaps and submission obligations recorded | [#9](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/9) |
+| CAP-13 | Grading evidence and independent review | Submission guide and rubric map prepared; independent review and peer reviews outstanding, P1 | All current criteria mapped to verified evidence; remaining gaps and submission obligations recorded | [#9](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/9); [submission guide](SUBMISSION.md); estimated 22/24 conservative, 23/24 conditional on automatic CD acceptance |
 
 ## Grading baseline
 
@@ -845,3 +845,36 @@ observed. Planned work must remain `Planned` or `Blocked`; it must not be marked
   validation and PowerShell syntax passed; existing AnyIO warning remains.
 - Commit and Actions results will be linked in Issue #8 after publication.
   Keep issue open for independent review and manual Grafana screenshots.
+
+## Final submission documentation and Vercel evidence - 2026-10-27
+
+- Owner authorized documentation/screenshot review, commit and normal push.
+  Scope: README.md, spec.md, docs/ARCHITECTURE.md, docs/ALERTING.md,
+  docs/TASK_TRACKER.md, new docs/SUBMISSION.md and owner-provided
+  docs/evidence/vercel-production-deployment.png. No application, database,
+  prices, orders, cloud credentials or Vercel configuration changes.
+- Screenshot exists (112631 bytes) and visual inspection confirms Ready/Latest,
+  Production/Current, source main, e9d8ef9 and the production domain at capture
+  time. No visible secrets/customer data. This is supplied owner evidence,
+  not an independent provider audit or proof of the deployment trigger.
+- GitHub CI 40546052593 rechecked: all six jobs succeeded for full SHA
+  e9d8ef914c056bf2da6754f78bdea26dda8edcad. Vercel bot Pending at 16:58:03 UTC,
+  Success at 16:58:32, same deployment record AaevsyrhBfRpfh66i2rtPVomfkPj.
+  CI ended 16:59:23, so no Vercel dependency on completed CI is claimed.
+  Automatic Git triggering remains strongly supported inference; provider API
+  metadata was unavailable (403), and absence of manual intervention unverified.
+- Corrected current preparation-only deployment/on-call statements and tracker
+  summaries. Historical execution records remain historical. Guide includes all
+  12 exact criterion maxima, evidence, isolated tests/demos, local-only monitoring,
+  privacy boundaries, failed/successful AI transcripts and owner Grafana images.
+- Score remains 22/24 conservative or 23/24 if automatic Vercel CD evidence is
+  accepted; no 24/24 claim. Independent review, manual alert/on-call lifecycle
+  screenshots, three required peer reviews, staged dev/manual prod delivery and
+  hosted rollback remain outstanding. No issues closed or manual deployment run.
+- Validation: documentation links, credential/scope review and git diff --check
+  performed before staging. Application tests and full demos were not rerun for
+  this documentation-only change; publication Actions results are reported in
+  the final handoff, distinct from the e9d8ef9 baseline above.
+- Final local validation: 67 relative links and four heading anchors resolve;
+  PNG has no text/EXIF metadata chunks; credential-pattern and whitespace checks
+  pass. Exactly seven documentation/evidence files are selected for publication.

@@ -59,8 +59,10 @@ CI must run backend tests, isolated PostgreSQL integration after Alembic
 migrations, frontend tests/build using the committed npm lockfile, and Docker
 image builds on pull requests and pushes to main. Deployment preparation must
 separate automatic development from manually approved production and document
-rollback. Hosting remains unconfigured; no public deployment is authorized by
-this specification. See [CI/CD setup](docs/CI_CD.md) for outstanding prerequisites.
+rollback. The public Vercel/Neon demo is deployed; the separate GitHub dev/prod
+deployment jobs remain held. Automatic Vercel deployment is an evidence-based
+inference, not a verified trigger audit. See [submission evidence](docs/SUBMISSION.md)
+and [CI/CD setup](docs/CI_CD.md) for remaining delivery requirements.
 
 ## Production preparation acceptance criteria
 
@@ -73,8 +75,8 @@ this specification. See [CI/CD setup](docs/CI_CD.md) for outstanding prerequisit
 4. Isolated production-style browser tests demonstrate browsing, RTL Arabic
    personalization, server pricing and persisted synthetic orders, security
    rejection paths and API restart persistence.
-5. Hosting/TLS setup, resource/cost estimates, rollback and outstanding public
-   deployment evidence are documented without claiming a live deployment.
+5. Standalone Docker hosting/TLS setup, resource/cost estimates and rollback are
+   documented separately from the actual Vercel/Neon public deployment evidence.
 
 ## Neon/Vercel preparation boundary
 
@@ -86,5 +88,9 @@ remains supported. See [Neon/Vercel preparation](docs/NEON_VERCEL.md).
 The Vercel variant uses repository-root Services routing: Vite static frontend,
 same-origin FastAPI /api and /api/health endpoints, and pooled Neon runtime
 connections. SPA fallback must not capture unknown API paths. The owner reports
-revision 20261025_06 and catalogue verification passed; hosted verification and
-independent review remain pending. Hobby use is limited to a non-commercial demo.
+revision 20261025_06 and catalogue verification passed. Hosted health/catalogue,
+quote and synthetic-order checks are recorded; the supplied production screenshot
+shows main/e9d8ef9 and the live domain. Independent review, a hosted rollback drill
+and later independent retrieval of the hosted synthetic order remain outstanding.
+Hobby use is limited to a non-commercial demo. Grafana, alerts and the AI responder
+are demonstrated locally only, never claimed as production monitoring.

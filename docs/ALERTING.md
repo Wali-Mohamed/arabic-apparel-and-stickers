@@ -2,7 +2,9 @@
 
 This is a local demonstration, not Vercel/Neon production monitoring. It extends
 the optional OpenTelemetry/Grafana LGTM stack with a real Grafana-managed alert
-and an internal webhook receiver. No external notifications or AI agent run.
+and an internal webhook receiver. No external notifications are sent. The
+separate [on-call demonstration](ONCALL.md) extends it with a real local AI agent;
+the alert-only script described here does not run that agent.
 
 ## Rule and runbook
 
@@ -140,9 +142,12 @@ manual screenshots and independent reviewer validation are distinct from API
 state verification and must not be claimed without evidence. Actual observed
 results and any failed attempts are recorded in TASK_TRACKER.md and Issue #7.
 
-Future Issue #8 may consume the same sanitized webhook via an authenticated,
-bounded responder with approved local diagnostic/remediation permissions; no
-agent, external notification destination or production monitoring is implemented.
+[Issue #8](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8)
+now has a separately demonstrated authenticated, bounded local responder. Its
+real Ollama decision, guarded marker removal and verified recovery are recorded
+in [ONCALL.md](ONCALL.md) and sanitized transcripts. The original alert-only
+script remains unchanged. Neither demonstration provides external notifications
+or production monitoring; independent review and lifecycle screenshots remain open.
 
 ## Observed local validation - 2026-10-27
 

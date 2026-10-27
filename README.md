@@ -37,11 +37,15 @@ a separate direct connection. Docker Compose remains the local alternative.
    narrowly scoped database check; never publish customer rows or credentials.
 
 Deployment evidence: [Issue #4](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/4)
-and the [task tracker](docs/TASK_TRACKER.md). Latest reviewed application commit:
-[`690f99e`](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/commit/690f99ec35e964c80c2e78315678c1a964a52369);
-[CI run](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40412574765)
-passed all six jobs. Vercel reported that commit deployed successfully; the
-production alias-to-SHA mapping has not been independently inspected.
+and the [submission guide](docs/SUBMISSION.md). The owner-provided
+[Vercel screenshot](docs/evidence/vercel-production-deployment.png) shows Ready,
+Production / Current, source main at
+[`e9d8ef9`](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/commit/e9d8ef914c056bf2da6754f78bdea26dda8edcad)
+and the live domain at capture time. The matching
+[CI run](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/actions/runs/40546052593)
+passed all six jobs. Automatic Git-triggered deployment is strongly supported by
+Vercel bot timestamps, but no explicit trigger/audit record or absence of manual
+intervention has been independently verified. See the guide for grading limits.
 
 Small and Big Be Seen tags share a fixed design: English `Be` on the left and
 Arabic `س` on the right. Isolated script spans keep this order in cards, previews,
@@ -200,7 +204,10 @@ Each issue includes priority, acceptance criteria and required evidence:
 - [#8: On-call responder agent](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8)
 - [#9: Grading evidence and independent review](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/9)
 
-These issues describe remaining work; they do not claim implemented capabilities.
+These issues record implementation evidence and remaining review requirements;
+an open issue does not mean its entire feature is unimplemented. The
+[submission guide](docs/SUBMISSION.md) maps all 12 rubric criteria to evidence,
+reproduction commands and remaining limitations.
 
 Project instructions for coding agents are in [AGENTS.md](AGENTS.md). The
 [AI agent workflow](docs/AI_AGENT_WORKFLOW.md) distinguishes documented Codex
