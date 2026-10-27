@@ -16,7 +16,7 @@ tracks the remaining grading work. Issue creation does not complete implementati
 | CAP-08 | Full-stack reproducibility evidence | Planned, P1 | Isolated Compose startup, migrations, browser flow and restart persistence are recorded | [#3](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/3); supplements CAP-02/03 evidence |
 | CAP-09 | CI/CD and rollback | In progress; CI implemented, deployment and independent review pending, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5) records actual publication/Actions results; [CI/CD setup and evidence](CI_CD.md); GitHub deployment jobs held; public Vercel demo verified, approved dev/prod CD and rollback evidence pending |
 | CAP-10 | Correlated telemetry | Local pipeline, screenshots and owner log/trace navigation verified; independent review pending, P2 | Metrics, traces and structured logs share trace IDs and are viewable without customer data | [#6](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/6) |
-| CAP-11 | User-impact alert | Planned, P2 | Reversible isolated fault demonstrates firing and recovery | [#7](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7); depends on CAP-10 |
+| CAP-11 | User-impact alert | Local firing/notification/recovery verified; publication authorized; screenshots and independent review pending, P2 | Reversible isolated fault demonstrates firing and recovery | [#7](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7); depends on CAP-10 |
 | CAP-12 | Bounded on-call agent | Planned, P2 | Alert triggers agent diagnosis/remediation and demonstrated recovery | [#8](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8); depends on CAP-11 |
 | CAP-13 | Grading evidence and independent review | Planned, P1 | All current criteria mapped to verified evidence; remaining gaps and submission obligations recorded | [#9](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/9) |
 
@@ -670,3 +670,85 @@ observed. Planned work must remain `Planned` or `Blocked`; it must not be marked
   review remains outstanding; keep Issue #6 open. Local correlated monitoring
   supports the rubric's 2-point criterion, not an awarded grade or production
   monitoring claim. Real-LGTM/UI scripts are not yet automated in hosted CI.
+
+## Phase 2 local pricing alerting handoff - 2026-10-27
+
+- Owner/role: Codex implementer under explicit local-only authorization for
+  Issue #7. No commit, push, deployment, Vercel/Neon changes or existing-order
+  writes. Required independent review is still outstanding.
+- Scope: provisioned Grafana PricingUnavailable on existing pricing POST request
+  counter, >=5 5xx in 2m, 10s evaluation, 30s pending, exclude 4xx. KeepLast on
+  NoData/Error plus explicit Error/NoData reason checks; no false recovery on
+  datasource failure. Internal webhook stores only safe alert/state/timestamp/
+  fingerprint fields, bounded in memory; no external notifications.
+- Fault: explicit local flags + exact disposable DB identity, Vercel/CI/integration
+  blocks, private container marker, valid pricing returns sanitized 503 without
+  any write. Invalid inputs still 422. No fault-control HTTP endpoint. Context/
+  finally and PowerShell cleanup remove marker after errors; no order retries.
+- Files: backend/app/local_faults.py, backend/app/alert_webhook.py,
+  backend/app/products.py, backend/tests/test_alerting.py, compose.alerting.yml,
+  observability/alerting.yaml, observability/datasources.yaml (local editable
+  metrics datasource for reversible query-outage test), scripts/alerting-demo.py,
+  scripts/alerting-ui.cjs, scripts/test-alerting.ps1, docs/ALERTING.md, README.md,
+  spec.md, docs/ARCHITECTURE.md and this tracker. Existing Compose/CI/Vercel
+  configurations, migrations, prices, catalogue and order handler are unchanged.
+- Actual final fresh-project run (UTC/London): Normal 10:36:54.726077; Pending
+  10:38:40.497394; Alerting observed 10:39:11.745210. Firing receipt
+  10:39:10.028921, incident start 10:39:10; monitoring unknown while still firing
+  10:39:42.880977; datasource healthy/pricing recovered around 10:40:11.723189;
+  resolved receipt 10:41:40.652989; Normal observed 10:41:42.439649. Matching
+  fingerprint 104cd504dd74996e. Failed pricing log resolves to Tempo trace
+  3577ac6348cbcfcb397701037a5bc938. No fake states or synthetic metric insertion.
+- Demonstrated: sustained 422s and three 503s stayed Normal; sustained actual 503s
+  caused Pending/Firing; real datasource query failure retained firing, with no
+  false resolved receipt; removal restored pricing 200 and automatic resolution.
+  Grafana can report root rule health=ok under Error, KeepLast, so verifier also
+  checks Alertmanager's grafana_state_reason. Fresh receipts/clean metric baseline
+  prevent stale events satisfying tests. Chromium verified actual rule detail UI.
+- Validation: 57 backend tests passed with real isolated migrated PostgreSQL
+  integration; final offline suite 56 passed; eight frontend tests and production
+  build passed. Covers guards, API behavior, cleanup failures, sanitized webhook,
+  telemetry privacy/exporter-failure regressions. One existing AnyIO warning.
+  Full PowerShell wrapper starts stack, verifies all stages, runs UI check and
+  confirms marker cleanup/plain down. All verification stacks used unique project
+  names and tmpfs DB; cleaned with plain down, no volume deletion/reset.
+- Earlier failures: misplaced unit-test block, over-escaped Grafana expression,
+  read-only metrics datasource rejecting the outage test, KeepLast health reason
+  initially misinterpreted, and collapsed list UI controls. Fixed and reran from
+  a fresh project; final wrapper passed including UI and cleanup. Not hidden or
+  counted as successful tests. Initial debug projects were also cleaned safely.
+- Evidence: [Issue #7 implementation review](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7#issuecomment-6439954499).
+  Reproduce with ./scripts/test-alerting.ps1; use -KeepStack for screenshots;
+  default Grafana 3010/app 18100, configurable ports. See docs/ALERTING.md.
+- Publication safety: draft issue comment was rejected by automatic approval
+  review for including a local default login; removed that detail and posted
+  sanitized evidence successfully. No rejected content was posted or bypassed.
+- Remaining: manual screenshots/state-history review and independent reviewer
+  approval, then separately authorized code publication. Runbook annotation's
+  future GitHub URL is pending publication. No new Actions run or production
+  monitoring claimed. The local demonstration supports the 1-point alerting
+  criterion, not an awarded grade. Total outages/frozen telemetry need separate
+  availability coverage; receiver is ephemeral/local only; no AI agent yet.
+
+## Alerting publication validation - 2026-10-27
+
+- Owner authorized review, commit and normal push for Issue #7. This is the
+  implementing agent's review, not independent approval. No live configuration,
+  schema, prices, existing orders or Neon credentials changed.
+- Revalidated 57 backend tests including isolated PostgreSQL integration after
+  all six existing Alembic revisions; eight frontend tests and production build
+  passed. npm ci reported zero vulnerabilities. Existing AnyIO warning remains.
+- Both CI and observability+alerting Compose configurations validate; 26 local
+  documentation links resolve; PowerShell syntax and git diff --check pass.
+  An initial link-check command had shell quoting errors; the corrected
+  PowerShell link check passed without changing implementation.
+- Reviewed all 15 pending files: fault requires explicit local flags, exact
+  disposable DB identity and absence of VERCEL/CI guards. Webhook allowlist
+  excludes customer payloads and credentials; receiver has no published port.
+  Only synthetic local/demo connection details are present. Deployment holds
+  and existing application/production settings remain unchanged.
+- Retained lifecycle evidence above remains the source for firing/resolved/UI
+  verification; the multi-minute demonstration was not rerun. No failed
+  verification requires a new demonstration.
+- Commit, push and hosted CI evidence will be linked in Issue #7 after publication.
+  Keep the issue open for manual screenshots and independent reviewer validation.

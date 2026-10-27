@@ -83,6 +83,14 @@ sends OTLP to pinned LGTM storage/UI and uses its own tmpfs PostgreSQL. Existing
 Compose/Vercel settings are untouched; instrumentation is disabled by default.
 See [local observability](OBSERVABILITY.md) for privacy boundaries and evidence.
 
+## Local alerting
+
+The optional alerting overlay provisions PricingUnavailable against the existing
+pricing request counter and routes notifications only to an internal sanitizing
+webhook. Its marker-based 503 fault is guarded by explicit local flags and the
+disposable database identity; no public control endpoint or database write is
+introduced. See [local alerting](ALERTING.md) for recovery and evidence boundaries.
+
 ## Migration strategy
 
 Alembic revisions are linear and are run on backend startup. Revisions create the base catalogue, add prices and pair offers, create order requests, update the fixed Be Seen display, and seed HTV colours. The JSON/JSONB cast in revision `20261025_06` supports PostgreSQL's `jsonb_set` function while retaining the existing JSON column type.

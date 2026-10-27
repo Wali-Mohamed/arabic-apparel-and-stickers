@@ -1,0 +1,55 @@
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: local-pricing-10s
+    folder: Apparel local alerts
+    interval: 10s
+    rules:
+      - uid: pricing-unavailable
+        title: PricingUnavailable
+        condition: B
+        for: 30s
+        noDataState: KeepLast
+        execErrState: KeepLast
+        annotations:
+          summary: Valid pricing requests are failing in the isolated local demonstration
+          runbook_url: https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/blob/main/docs/ALERTING.md
+        labels:
+          environment: local-demo
+          severity: warning
+        data:
+          - refId: A
+            datasourceUid: apparel-prometheus
+            relativeTimeRange: {from: 180, to: 0}
+            model:
+              refId: A
+              datasource: {type: prometheus, uid: apparel-prometheus}
+              instant: true
+              range: false
+              expr: >-
+                sum(increase(apparel_requests_total{route="/api/products/{product_id}/price",method="POST",status=~"5.."}[2m]))
+                or (0 * sum(increase(apparel_requests_total{route="/api/products/{product_id}/price",method="POST"}[2m])))
+          - refId: B
+            datasourceUid: __expr__
+            relativeTimeRange: {from: 0, to: 0}
+            model:
+              refId: B
+              type: math
+              expression: '$A >= 5'
+contactPoints:
+  - orgId: 1
+    name: local-pricing-webhook
+    receivers:
+      - uid: local-pricing-receiver
+        type: webhook
+        disableResolveMessage: false
+        settings:
+          url: http://alert-receiver:8081/webhook
+          httpMethod: POST
+policies:
+  - orgId: 1
+    receiver: local-pricing-webhook
+    group_by: [alertname, environment]
+    group_wait: 0s
+    group_interval: 10s
+    repeat_interval: 1h

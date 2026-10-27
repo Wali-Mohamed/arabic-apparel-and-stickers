@@ -1,0 +1,23 @@
+# Add only to the standalone observability stack in a unique disposable project.
+services:
+  backend:
+    environment:
+      LOCAL_PRICE_FAULTS: '1'
+    volumes:
+      - ./scripts/alerting-demo.py:/app/alerting_demo.py:ro
+  lgtm:
+    volumes:
+      - ./observability/alerting.yaml:/otel-lgtm/grafana/conf/provisioning/alerting/apparel.yaml:ro
+    depends_on:
+      alert-receiver: {condition: service_started}
+  alert-receiver:
+    image: apparel-observability-backend:local
+    command: [python, -m, app.alert_webhook]
+    read_only: true
+    tmpfs: [/tmp]
+    environment:
+      PYTHONDONTWRITEBYTECODE: '1'
+  browser:
+    volumes:
+      - ./scripts/alerting-ui.cjs:/tests/alerting-ui.cjs:ro
+    entrypoint: [node, /tests/alerting-ui.cjs]

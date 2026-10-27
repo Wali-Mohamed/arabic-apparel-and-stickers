@@ -7,6 +7,7 @@ from app.models import Product, ProductPrice
 from app.personalization import normalize_and_validate_arabic_letter, normalize_and_validate_arabic_text
 from app.schemas import PriceQuoteRead, PriceQuoteRequest, ProductRead
 from app.telemetry import operation
+from app.local_faults import reject_unavailable_pricing
 
 router = APIRouter(prefix="/api/products", tags=["products"])
 
@@ -53,6 +54,7 @@ def calculate_price(product_id: int, quote_request: PriceQuoteRequest, db: Sessi
     if price is None:
         raise HTTPException(status_code=400, detail="Unsupported product configuration")
 
+    reject_unavailable_pricing()  # Only after product/options/price validation.
     total = calculate_total(price, quote_request.quantity)
     return PriceQuoteRead(
         price_pence=total,

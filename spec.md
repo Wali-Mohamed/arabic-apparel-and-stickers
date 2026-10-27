@@ -38,6 +38,11 @@ Payments, customer accounts, checkout, fulfillment, and production-accurate rend
 
 ## Delivery validation
 
+Optional local pricing alerting must exclude ordinary input errors, demonstrate
+real sustained 5xx firing and automatic recovery, sanitize local notifications,
+and keep fault injection unavailable outside an explicitly armed disposable
+stack. Monitoring failure must not be treated as successful application recovery.
+
 Optional local observability must correlate sanitized request logs and spans,
 collect request/error/duration metrics and expose them in a monitoring UI.
 Never record personalization/contact data, bodies, credentials or SQL parameters;

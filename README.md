@@ -139,6 +139,11 @@ tracker for actual ingestion, exemplar and UI verification results. The
 [dashboard and log-to-trace screenshots](docs/OBSERVABILITY.md#owner-provided-ui-evidence)
 record owner-verified local UI evidence, not independent review.
 
+[Local pricing alerting](docs/ALERTING.md) adds a provisioned Grafana alert,
+internal firing/resolved webhook and guarded reversible pricing fault demo.
+Run `./scripts/test-alerting.ps1` from the repository root. This is local only;
+see the tracker for actual firing/recovery results and outstanding review evidence.
+
 [Neon and Vercel preparation](docs/NEON_VERCEL.md) documents the pooled runtime
 URL, separate direct migration URL, SSL settings and Vercel project setup. The
 migration helper defaults to connection-free validation. Neon is connected to
