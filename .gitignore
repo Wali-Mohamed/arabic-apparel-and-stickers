@@ -223,3 +223,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Disposable local on-call secrets, SQLite state and sanitized run transcripts.
+.oncall-local/

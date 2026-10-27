@@ -38,6 +38,12 @@ Payments, customer accounts, checkout, fulfillment, and production-accurate rend
 
 ## Delivery validation
 
+The optional local on-call responder must authenticate real Grafana alerts,
+investigate actual metrics/logs/traces and synthetic pricing, and use a real local
+model decision behind deterministic permissions. Only the isolated predefined
+fault marker may be removed. Verified pricing/alert recovery and a matching
+resolved notification are required; fallback cleanup is never agent success.
+
 Optional local pricing alerting must exclude ordinary input errors, demonstrate
 real sustained 5xx firing and automatic recovery, sanitize local notifications,
 and keep fault injection unavailable outside an explicitly armed disposable

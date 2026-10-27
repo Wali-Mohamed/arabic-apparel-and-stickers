@@ -1,0 +1,145 @@
+{
+  "model": "qwen2.5:0.5b",
+  "outcome": "PASSED",
+  "model_digest": "a8b0c51577010a279d933d14c2a8ab4b268079d44c5c8830c0a93900f1827c67",
+  "ollama_version": "0.6.8",
+  "incidents": [
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "state": "Recovered",
+      "resolved": 1
+    }
+  ],
+  "audit": [
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:10.045527+00:00",
+      "event": "Received",
+      "detail": {
+        "fingerprint": "104cd504dd74996e",
+        "starts_at": "2026-10-27T16:45:10+00:00"
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:10.046083+00:00",
+      "event": "Investigating",
+      "detail": {}
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:10.128262+00:00",
+      "event": "tool.inspect_pricing_metrics",
+      "detail": {
+        "failures": 21.657771697908764,
+        "checked_at": 1793119510.1280215
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:10.264421+00:00",
+      "event": "tool.inspect_failed_pricing_trace",
+      "detail": {
+        "matched": true,
+        "trace_id": "37b0e3c89638e031627253e097e736ea",
+        "checked_at": 1793119510.2642477
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:10.308560+00:00",
+      "event": "tool.probe_pricing",
+      "detail": {
+        "status": 503,
+        "checked_at": 1793119510.3083992
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:10.311145+00:00",
+      "event": "tool.inspect_local_fault",
+      "detail": {
+        "armed": true,
+        "exists": true,
+        "checked_at": 1793119510.3109977
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:10.311625+00:00",
+      "event": "Decision",
+      "detail": {}
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:22.173844+00:00",
+      "event": "model.decision",
+      "detail": {
+        "action": "clear_local_pricing_fault",
+        "reason": "confirmed_local_fault",
+        "model": "qwen2.5:0.5b",
+        "eval_count": 16
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:22.174298+00:00",
+      "event": "Remediating",
+      "detail": {}
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:22.316141+00:00",
+      "event": "tool.clear_local_pricing_fault",
+      "detail": {
+        "removed": true,
+        "attempt": 1
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:22.316779+00:00",
+      "event": "Verifying",
+      "detail": {}
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:22.425093+00:00",
+      "event": "tool.probe_pricing",
+      "detail": {
+        "status": 200,
+        "checked_at": 1793119522.4237506
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:45:24.516684+00:00",
+      "event": "tool.probe_pricing",
+      "detail": {
+        "status": 200,
+        "checked_at": 1793119524.5165427
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:47:30.460950+00:00",
+      "event": "notification.resolved",
+      "detail": {
+        "received_at": "2026-10-27T16:47:30.460899+00:00",
+        "ends_at": "2026-10-27T16:47:20+00:00"
+      }
+    },
+    {
+      "id": "104cd504dd74996e:2026-10-27T16:45:10+00:00",
+      "at": "2026-10-27T16:47:31.544243+00:00",
+      "event": "Recovered",
+      "detail": {
+        "pricing_status": 200,
+        "healthy_normal": true,
+        "resolved_received": true,
+        "tool_calls": 7
+      }
+    }
+  ],
+  "observed_503_requests": 27
+}

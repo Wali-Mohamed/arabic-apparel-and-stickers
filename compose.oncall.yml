@@ -1,0 +1,56 @@
+# Standalone overlay for compose.observability.yml ONLY; never merge with production.
+services:
+  backend:
+    environment:
+      LOCAL_PRICE_FAULTS: '1'
+      LOCAL_ONCALL: '1'
+    volumes:
+      - oncall-fault:/oncall-fault
+      - ${ONCALL_RUNTIME_DIR:?run scripts/test-oncall.ps1}/secret:/run/secrets/oncall:ro
+      - ./scripts/oncall-demo.py:/app/oncall_demo.py:ro
+    command: [sh, -c, 'python -m app.oncall_arm && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-access-log']
+  lgtm:
+    volumes:
+      - ${ONCALL_RUNTIME_DIR:?run scripts/test-oncall.ps1}/alerting.yaml:/otel-lgtm/grafana/conf/provisioning/alerting/oncall.yaml:ro
+  oncall:
+    image: apparel-observability-backend:local
+    command: [python, -m, app.oncall]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/tmp]
+    volumes:
+      - oncall-fault:/oncall-fault
+      - oncall-state:/state
+      - ${ONCALL_RUNTIME_DIR:?run scripts/test-oncall.ps1}/secret:/run/secrets/oncall:ro
+    environment:
+      LOCAL_ONCALL: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+    depends_on:
+      backend: {condition: service_healthy}
+      ollama: {condition: service_started}
+  ollama:
+    image: ollama/ollama:0.6.8@sha256:50ab2378567a62b811a2967759dd91f254864c3495cbe50576bd8a85bc6edd56
+    volumes: [oncall-model:/root/.ollama]
+    environment:
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+    # No host port. Runtime network has no external egress.
+  model-download:
+    image: ollama/ollama:0.6.8@sha256:50ab2378567a62b811a2967759dd91f254864c3495cbe50576bd8a85bc6edd56
+    profiles: [setup]
+    networks: [bootstrap]
+    volumes: [oncall-model:/root/.ollama]
+    entrypoint: [sh, -c]
+    command:
+      - 'ollama serve >/tmp/ollama-setup.log 2>&1 & server=$$!; trap "kill $$server" EXIT; sleep 3; ollama pull qwen2.5:0.5b'
+networks:
+  default:
+    internal: true
+  bootstrap: {}
+volumes:
+  oncall-model: {}
+  oncall-fault:
+    driver_opts: {type: tmpfs, device: tmpfs, o: 'size=1m'}
+  oncall-state:
+    driver_opts: {type: tmpfs, device: tmpfs, o: 'size=8m'}

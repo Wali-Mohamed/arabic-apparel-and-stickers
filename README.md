@@ -144,6 +144,11 @@ internal firing/resolved webhook and guarded reversible pricing fault demo.
 Run `./scripts/test-alerting.ps1` from the repository root. This is local only;
 see the tracker for actual firing/recovery results and outstanding review evidence.
 
+[Local AI on-call responder](docs/ONCALL.md) adds an isolated Ollama decision
+worker with fixed diagnostics and a single guarded pricing-fault remediation.
+Run `./scripts/test-oncall.ps1`; the transcript distinguishes real model decisions
+and verified recovery from fallback cleanup. No production access is provided.
+
 [Neon and Vercel preparation](docs/NEON_VERCEL.md) documents the pooled runtime
 URL, separate direct migration URL, SSL settings and Vercel project setup. The
 migration helper defaults to connection-free validation. Neon is connected to

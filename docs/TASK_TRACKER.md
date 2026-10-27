@@ -17,7 +17,7 @@ tracks the remaining grading work. Issue creation does not complete implementati
 | CAP-09 | CI/CD and rollback | In progress; CI implemented, deployment and independent review pending, P1 | PR checks, automatic dev deploy, manual production gate and rollback evidence | [#5](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/5) records actual publication/Actions results; [CI/CD setup and evidence](CI_CD.md); GitHub deployment jobs held; public Vercel demo verified, approved dev/prod CD and rollback evidence pending |
 | CAP-10 | Correlated telemetry | Local pipeline, screenshots and owner log/trace navigation verified; independent review pending, P2 | Metrics, traces and structured logs share trace IDs and are viewable without customer data | [#6](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/6) |
 | CAP-11 | User-impact alert | Local firing/notification/recovery verified; publication authorized; screenshots and independent review pending, P2 | Reversible isolated fault demonstrates firing and recovery | [#7](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/7); depends on CAP-10 |
-| CAP-12 | Bounded on-call agent | Planned, P2 | Alert triggers agent diagnosis/remediation and demonstrated recovery | [#8](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8); depends on CAP-11 |
+| CAP-12 | Bounded on-call agent | Local real-model investigation/remediation/recovery verified; screenshots and independent review pending, P2 | Alert triggers agent diagnosis/remediation and demonstrated recovery | [#8](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8); depends on CAP-11; [runbook](ONCALL.md) |
 | CAP-13 | Grading evidence and independent review | Planned, P1 | All current criteria mapped to verified evidence; remaining gaps and submission obligations recorded | [#9](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/9) |
 
 ## Grading baseline
@@ -752,3 +752,96 @@ observed. Planned work must remain `Planned` or `Blocked`; it must not be marked
   verification requires a new demonstration.
 - Commit, push and hosted CI evidence will be linked in Issue #7 after publication.
   Keep the issue open for manual screenshots and independent reviewer validation.
+
+## Issue #8 local AI on-call implementation - 2026-10-27
+
+- Scope/owner: Codex implementer under explicit local implementation and real-model
+  demonstration authorization. No commit, push, hosted deployment, production
+  Vercel/Neon access, existing-order writes or schema/catalogue/price changes.
+- Acceptance: authenticated real firing webhook automatically starts a bounded
+  Python worker; diagnose actual Prometheus/Loki/Tempo and current synthetic
+  pricing; local model chooses allowlisted action; deterministic gates allow
+  one predefined marker removal; verify HTTP 200, healthy Normal and matching
+  resolved receipt. Independent reviewer validation is still required.
+- Implementation: dedicated standalone compose.oncall.yml; internal runtime
+  network, separate bootstrap download service, no published model/worker ports,
+  no Docker socket or host-source mount, no database/cloud credentials in worker.
+  Disposable fault tmpfs and SQLite ledger are separate from existing DB volumes.
+  Original scripts/test-alerting.ps1 and regular Compose/Vercel config unchanged;
+  .vercelignore gains only an exclusion for generated secret artifacts.
+- Webhook: ephemeral local Bearer secret in ignored files; constant-time auth,
+  strict schema/size/timestamp/alert/environment checks, fingerprint+start dedup,
+  single worker, restart escalation, no raw annotations/body/exception logging.
+  Eight tools maximum, one remediation, five-second HTTP requests, 90-second
+  model inference bound, ten-minute incident deadline; no external escalation.
+- Fault: backend attestation requires existing disposable DB guard, shared fixed
+  marker directory; worker rejects VERCEL/CI/integration/database credentials.
+  Gate checks fresh failures, matching 503 log/request trace, current 503 quote,
+  marker and healthy firing Grafana incident matching fingerprint and start.
+  Production/default marker behavior preserved. Model cannot choose paths/URLs,
+  queries or shell commands. Tiny model sees compact typed evidence only.
+- Versions: Ollama 0.6.8, image sha256:50ab2378567a62b811a2967759dd91f254864c3495cbe50576bd8a85bc6edd56;
+  qwen2.5:0.5b (494M Q4_K_M), digest
+  a8b0c51577010a279d933d14c2a8ab4b268079d44c5c8830c0a93900f1827c67.
+  Tested with Docker allocation ~8 GB RAM / 4 CPUs, no GPU or paid API.
+- Actual first attempt: apparel-oncall-3debcca40d FAILED; automatic firing received
+  16:41:14 UTC, all real diagnostics retrieved, actual model chose escalation at
+  16:41:26 despite sufficient evidence. No agent removal; failure recorded before
+  fallback cleanup. observability/oncall-failed-attempt.json preserves evidence.
+  Simplified model facts/prompt and retried with the same model and permission gates.
+- Actual successful retry: apparel-oncall-5a385a1757, wrapper exit 0 / PASSED.
+  UTC: firing/activation 16:45:10.045527; model decision 16:45:22.173844 (16 output
+  tokens); agent removed marker 16:45:22.316141; HTTP 200 probes 16:45:22.425093
+  and 16:45:24.516684; resolved received 16:47:30.460899; Recovered with healthy
+  Normal 16:47:31.544243. Incident fingerprint 104cd504dd74996e, start 16:45:10;
+  failed trace 37b0e3c89638e031627253e097e736ea. Seven tools / one remediation;
+  driver observed 27 actual 503s. No fabricated metrics, states or notifications.
+- Transcript: observability/oncall-transcript.json; ignored original runtime
+  .oncall-local/apparel-oncall-5a385a1757/transcript.json. Never publish its sibling
+  secret or generated alerting.yaml. Sanitized copies contain no credentials,
+  bodies or customer fields. Fallback cleanup starts only after outcome recorded;
+  it is not part of the agent-success assertion. Both demo stacks were stopped.
+- Validation commands/results: isolated compose.ci.yml backend run passed 93 tests
+  including PostgreSQL integration after existing Alembic migrations; final
+  pytest tests/test_oncall.py -q passed 36 tests. Frontend npm ci, eight tests and
+  production build passed (zero npm vulnerabilities reported). Compose config
+  --quiet, PowerShell AST parse, local Markdown links and git diff --check passed.
+  Existing AnyIO warning remains. No failing automated test was bypassed; first
+  real-model failure explicitly retained above. Existing DB volumes not deleted.
+- Files: .gitignore, .vercelignore, README.md, spec.md, backend/app/local_faults.py,
+  backend/app/oncall.py, backend/app/oncall_arm.py, backend/tests/test_oncall.py,
+  compose.oncall.yml, scripts/oncall-demo.py, scripts/test-oncall.ps1,
+  docs/ONCALL.md, docs/ARCHITECTURE.md, docs/AI_AGENT_WORKFLOW.md, this tracker,
+  observability/oncall-transcript.json and observability/oncall-failed-attempt.json.
+- Remaining: independent reviewer and manual Grafana lifecycle screenshots;
+  separate authorization for publication. Keep Issue #8 open. Local demonstration
+  supports two-point on-call behavior, not an awarded grade or production agent.
+  Small-model reliability is limited (first failure observed); unknown incidents,
+  stale/unavailable telemetry, bad decisions and timeouts escalate locally.
+- Public evidence handoff: [Issue #8 implementation and real-model results](https://github.com/Wali-Mohamed/arabic-apparel-and-stickers/issues/8#issuecomment-6448000090).
+  Issue remains OPEN. Final check resolved 33 local documentation links; secret
+  pattern scan found no real token/private-key/Neon URL in the 17 changed files.
+  Nothing staged, committed or pushed.
+
+## Issue #8 publication review - 2026-10-27
+
+- Owner explicitly authorized review, commit and normal push. Reviewed all 17
+  pending files; implementing-agent review is not independent human approval.
+  Corrected tracker formatting and updated current publication wording only.
+- Both retained transcripts parse and pass field/privacy review: no credentials,
+  personal data, raw model reasoning or unsafe filesystem paths. The failed
+  attempt has escalation and no removal; successful attempt has exactly one
+  removal, repeated 200 probes, matching resolved receipt and healthy recovery.
+  Driver normal flow never removes the marker; fallback cleanup follows the
+  recorded outcome. No full real-model demonstration was rerun.
+- Security review confirms ephemeral authenticated webhook, deduplication,
+  bounded tools/model output, fresh-evidence/active-incident gates, Vercel/CI
+  exclusions, no cloud or database credentials or Docker socket in the worker,
+  and internal-only runtime networking. Generated secrets remain Git/Vercel
+  excluded. Existing application data, migrations and production settings unchanged.
+- Fresh validation: 93 backend tests including disposable PostgreSQL integration
+  after six existing Alembic revisions passed; eight frontend tests, npm ci and
+  production build passed (zero reported npm vulnerabilities). Compose quiet
+  validation and PowerShell syntax passed; existing AnyIO warning remains.
+- Commit and Actions results will be linked in Issue #8 after publication.
+  Keep issue open for independent review and manual Grafana screenshots.

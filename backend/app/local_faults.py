@@ -7,7 +7,8 @@ from contextlib import contextmanager
 from fastapi import HTTPException
 from app.db_config import database_url
 
-PRICING_MARKER = Path("/tmp/apparel-pricing-unavailable")
+PRICING_MARKER = Path("/oncall-fault/pricing-unavailable" if os.getenv("LOCAL_ONCALL") == "1"
+                     else "/tmp/apparel-pricing-unavailable")
 
 
 def local_fault_allowed(settings: Mapping[str, str] | None = None) -> bool:

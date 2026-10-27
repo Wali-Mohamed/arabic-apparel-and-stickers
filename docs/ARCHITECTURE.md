@@ -91,6 +91,16 @@ webhook. Its marker-based 503 fault is guarded by explicit local flags and the
 disposable database identity; no public control endpoint or database write is
 introduced. See [local alerting](ALERTING.md) for recovery and evidence boundaries.
 
+## Local on-call responder
+
+The optional standalone oncall overlay extends local observability with an
+authenticated webhook, SQLite incident ledger and bounded Ollama decision worker.
+A dedicated disposable fault volume is shared only with the isolated backend;
+the worker has no database or cloud credentials or Docker socket. Runtime uses
+an internal network, while a separate setup service downloads the local model.
+The original alerting demonstration is preserved. See [on-call runbook](ONCALL.md)
+for tools, permission gates, actual execution evidence and remaining review work.
+
 ## Migration strategy
 
 Alembic revisions are linear and are run on backend startup. Revisions create the base catalogue, add prices and pair offers, create order requests, update the fixed Be Seen display, and seed HTV colours. The JSON/JSONB cast in revision `20261025_06` supports PostgreSQL's `jsonb_set` function while retaining the existing JSON column type.

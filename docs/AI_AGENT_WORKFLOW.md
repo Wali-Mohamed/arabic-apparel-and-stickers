@@ -22,9 +22,12 @@ The current documented workflow is human-in-the-loop:
 4. The product owner reviews outcomes and explicitly authorizes irreversible
    actions such as commits and pushes.
 
-This repository has no evidence of an executed autonomous agent team, custom
-agent loop or project-specific MCP server. The
-roles below are proposed operating instructions, not historical execution logs.
+An optional [local on-call responder](ONCALL.md) now has a demonstrated bounded
+Ollama decision worker: a real Grafana alert triggered actual diagnostics,
+allowlisted fault remediation and verified recovery. Its transcript also records
+a failed first attempt. This is a single local responder, not an executed
+autonomous agent team or project-specific MCP server. The roles below remain
+proposed operating instructions, not historical execution logs.
 
 ## Proposed agent team
 
